@@ -16,7 +16,9 @@ import java.util.Map;
 
 @Service
 public class StatisticsClient extends BaseClient {
+
     private final DateUtil dateUtil;
+
     public StatisticsClient(@Value("${stats-server.url}") String serverUrl,
                             RestTemplateBuilder builder,
                             DateUtil dateUtil) {
