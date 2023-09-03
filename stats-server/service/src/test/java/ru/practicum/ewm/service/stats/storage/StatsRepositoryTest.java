@@ -52,7 +52,7 @@ class StatsRepositoryTest {
 
     @Test
     void findAllStatsForUris_someUrisIncluded_returnsCorrectList() {
-        List<StatResponse> stats = statsRepository.findAllStatsForUris(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, SIX_URL));
+        List<StatResponse> stats = statsRepository.findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, SIX_URL));
         assertThat(stats).hasSize(2);
         assertThat(stats.get(0).getHits()).isEqualTo(3);
         assertThat(stats.get(0).getUri()).isEqualTo(ONE_URL);
@@ -62,7 +62,7 @@ class StatsRepositoryTest {
 
     @Test
     void findAllStatsForUris_allUrisIncluded_returnsCorrectList() {
-        List<StatResponse> stats = statsRepository.findAllStatsForUris(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL));
+        List<StatResponse> stats = statsRepository.findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL));
         assertThat(stats).hasSize(3);
         assertThat(stats.get(0).getHits()).isEqualTo(3);
         assertThat(stats.get(0).getUri()).isEqualTo(ONE_URL);
@@ -74,7 +74,7 @@ class StatsRepositoryTest {
 
     @Test
     void findAllStatsForUrisUnique_someUrisIncluded_returnsCorrectList() {
-        List<StatResponse> stats = statsRepository.findAllStatsForUrisUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, TWO_URL_SAME_AS_ONE, THREE_URL_SAME_AS_ONE));
+        List<StatResponse> stats = statsRepository.findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, TWO_URL_SAME_AS_ONE, THREE_URL_SAME_AS_ONE));
         assertThat(stats).hasSize(1);
         assertThat(stats.get(0).getHits()).isEqualTo(2);
         assertThat(stats.get(0).getApp()).isEqualTo(APP);
@@ -83,7 +83,7 @@ class StatsRepositoryTest {
 
     @Test
     void findAllStatsForUrisUnique_allUrisIncluded_returnsCorrectList() {
-        List<StatResponse> stats = statsRepository.findAllStatsForUrisUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL));
+        List<StatResponse> stats = statsRepository.findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL));
         assertThat(stats).hasSize(3);
         assertThat(stats.get(0).getHits()).isEqualTo(2);
         assertThat(stats.get(0).getApp()).isEqualTo(APP);
@@ -95,7 +95,7 @@ class StatsRepositoryTest {
 
     @Test
     void findAllStats_whenDatesInRangeOfSaved_ReturnsCorrectList() {
-        List<StatResponse> stats = statsRepository.findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP);
+        List<StatResponse> stats = statsRepository.findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP, null);
         assertThat(stats).hasSize(3);
         assertThat(stats.get(0).getHits()).isEqualTo(3);
         assertThat(stats.get(0).getUri()).isEqualTo(ONE_URL);
@@ -107,7 +107,7 @@ class StatsRepositoryTest {
 
     @Test
     void findAllStatsUnique_returnsCorrectList() {
-        List<StatResponse> stats = statsRepository.findAllStatsUnique(ONE_TIMESTAMP, THREE_TIMESTAMP);
+        List<StatResponse> stats = statsRepository.findAllStatsUnique(ONE_TIMESTAMP, THREE_TIMESTAMP, null);
         assertThat(stats).hasSize(1);
         assertThat(stats.get(0).getHits()).isEqualTo(2);
         assertThat(stats.get(0).getApp()).isEqualTo(APP);
@@ -116,13 +116,13 @@ class StatsRepositoryTest {
 
     @Test
     void findAllStatsUnique_whenDatesNotInRangeOfSaved_returnsCorrectList() {
-        List<StatResponse> stats = statsRepository.findAllStatsUnique(ONE_TIMESTAMP.minusDays(100), SIX_TIMESTAMP.minusDays(50));
+        List<StatResponse> stats = statsRepository.findAllStatsUnique(ONE_TIMESTAMP.minusDays(100), SIX_TIMESTAMP.minusDays(50), null);
         assertThat(stats).isEmpty();
     }
 
     @Test
     void findAllStatsUnique_whenDatesInRangeOfSaved_returnsCorrectList() {
-        List<StatResponse> stats = statsRepository.findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP);
+        List<StatResponse> stats = statsRepository.findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, null);
         assertThat(stats).hasSize(3);
         assertThat(stats.get(0).getHits()).isEqualTo(2);
         assertThat(stats.get(0).getApp()).isEqualTo(APP);

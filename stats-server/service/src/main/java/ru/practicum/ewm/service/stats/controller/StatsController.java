@@ -33,7 +33,7 @@ public class StatsController {
     public List<StatResponse> getStatistics(@RequestParam("start") String start,
                                             @RequestParam("end") String end,
                                             @RequestParam(value = "uris", required = false) List<String> uris,
-                                            @RequestParam(value = "unique", required = false, defaultValue = "false") boolean unique) {
+                                            @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
         log.info("Received request to GET statistics for period start: {}, end: {}", start, end);
         LocalDateTime startDate = dateUtil.decodeFromString(start);
         LocalDateTime endDate = dateUtil.decodeFromString(end);

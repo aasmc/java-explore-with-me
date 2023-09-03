@@ -5,18 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.ewm.service.stats.common.util.DateUtil;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 public class StatRequest {
-    @NotEmpty
+    @NotBlank
     private String app;
-    @NotEmpty
+    @NotBlank
     private String uri;
-    @NotEmpty
+    @NotBlank
     private String ip;
     @NotNull
     @JsonFormat(pattern = DateUtil.DATE_FORMAT)

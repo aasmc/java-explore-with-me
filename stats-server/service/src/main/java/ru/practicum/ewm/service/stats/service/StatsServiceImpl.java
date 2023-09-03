@@ -24,22 +24,10 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<StatResponse> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        if (hasNoUris(uris)) {
-            if (unique) {
-                return statsRepository.findAllStatsUnique(start, end);
-            } else {
-                return statsRepository.findAllStats(start, end);
-            }
+        if (unique) {
+            return statsRepository.findAllStatsUnique(start, end, uris);
         } else {
-            if (unique) {
-                return statsRepository.findAllStatsForUrisUnique(start, end, uris);
-            } else {
-                return statsRepository.findAllStatsForUris(start, end, uris);
-            }
+            return statsRepository.findAllStats(start, end, uris);
         }
-    }
-
-    private boolean hasNoUris(List<String> uris) {
-        return null == uris || uris.isEmpty();
     }
 }

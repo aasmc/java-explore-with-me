@@ -55,22 +55,22 @@ class StatsServiceImplTest {
 
         Mockito
                 .lenient()
-                .when(statsRepository.findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP))
+                .when(statsRepository.findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, null))
                 .thenReturn(responses);
 
         Mockito
                 .lenient()
-                .when(statsRepository.findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP))
+                .when(statsRepository.findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP, null))
                 .thenReturn(responses);
 
         Mockito
                 .lenient()
-                .when(statsRepository.findAllStatsForUrisUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL)))
+                .when(statsRepository.findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL)))
                 .thenReturn(responses);
 
         Mockito
                 .lenient()
-                .when(statsRepository.findAllStatsForUris(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL)))
+                .when(statsRepository.findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL)))
                 .thenReturn(responses);
     }
 
@@ -79,7 +79,7 @@ class StatsServiceImplTest {
         statsService.getStatistics(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL), false);
         Mockito
                 .verify(statsRepository, Mockito.times(1))
-                .findAllStatsForUris(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL));
+                .findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL));
     }
 
     @Test
@@ -87,7 +87,7 @@ class StatsServiceImplTest {
         statsService.getStatistics(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL), true);
         Mockito
                 .verify(statsRepository, Mockito.times(1))
-                .findAllStatsForUrisUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL));
+                .findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, List.of(ONE_URL, FOUR_URL, SIX_URL));
     }
 
     @Test
@@ -95,7 +95,7 @@ class StatsServiceImplTest {
         statsService.getStatistics(ONE_TIMESTAMP, SIX_TIMESTAMP, null, false);
         Mockito
                 .verify(statsRepository, Mockito.times(1))
-                .findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP);
+                .findAllStats(ONE_TIMESTAMP, SIX_TIMESTAMP, null);
     }
 
     @Test
@@ -103,7 +103,7 @@ class StatsServiceImplTest {
         statsService.getStatistics(ONE_TIMESTAMP, SIX_TIMESTAMP, null, true);
         Mockito
                 .verify(statsRepository, Mockito.times(1))
-                .findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP);
+                .findAllStatsUnique(ONE_TIMESTAMP, SIX_TIMESTAMP, null);
     }
 
     @Test

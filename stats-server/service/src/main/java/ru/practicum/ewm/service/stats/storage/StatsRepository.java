@@ -14,35 +14,21 @@ public interface StatsRepository extends JpaRepository<Stats, Long> {
     @Query("select new ru.practicum.ewm.service.stats.common.dto.StatResponse(s.app, s.uri, count(distinct s.ip)) " +
             "from Stats s " +
             "where s.timestamp between :start and :end " +
+            "and ((:uris) is null or s.uri in :uris) " +
             "group by s.app, s.uri " +
             "order by count(distinct s.ip) desc")
-    List<StatResponse> findAllStatsUnique(@Param("start")LocalDateTime start, @Param("end") LocalDateTime end);
+    List<StatResponse> findAllStatsUnique(@Param("start") LocalDateTime start,
+                                          @Param("end") LocalDateTime end,
+                                          @Param("uris") List<String> uris);
 
     @Query("select new ru.practicum.ewm.service.stats.common.dto.StatResponse(s.app, s.uri, count(s.ip)) " +
             "from Stats s " +
             "where s.timestamp between :start and :end " +
+            "and ((:uris) is null or s.uri in :uris) " +
             "group by s.app, s.uri " +
             "order by count(s.ip) desc")
-    List<StatResponse> findAllStats(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
-
-    @Query("select new ru.practicum.ewm.service.stats.common.dto.StatResponse(s.app, s.uri, count(distinct s.ip)) " +
-            "from Stats s " +
-            "where s.timestamp between :start and :end " +
-            "and s.uri in :uris " +
-            "group by s.app, s.uri " +
-            "order by count(distinct s.ip) desc")
-    List<StatResponse> findAllStatsForUrisUnique(@Param("start") LocalDateTime start,
-                                                 @Param("end") LocalDateTime end,
-                                                 @Param("uris") List<String> uris);
-
-    @Query("select new ru.practicum.ewm.service.stats.common.dto.StatResponse(s.app, s.uri, count(s.ip)) " +
-            "from Stats s " +
-            "where s.timestamp between :start and :end " +
-            "and s.uri in :uris " +
-            "group by s.app, s.uri " +
-            "order by count(s.ip) desc")
-    List<StatResponse> findAllStatsForUris(@Param("start") LocalDateTime start,
-                                           @Param("end") LocalDateTime end,
-                                           @Param("uris") List<String> uris);
+    List<StatResponse> findAllStats(@Param("start") LocalDateTime start,
+                                    @Param("end") LocalDateTime end,
+                                    @Param("uris") List<String> uris);
 
 }
