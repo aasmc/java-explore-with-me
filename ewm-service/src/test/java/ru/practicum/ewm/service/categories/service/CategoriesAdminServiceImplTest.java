@@ -117,6 +117,7 @@ class CategoriesAdminServiceImplTest extends BaseIntegTest {
         });
         assertThat(ex.getReason()).isEqualTo(DATA_INTEGRITY_VIOLATION_REASON);
     }
+
     @Test
     void createCategory_whenAllCorrect_createsNewCategory() {
         NewCategoryDto dto = newCategoryDto(CATEGORY_NAME);

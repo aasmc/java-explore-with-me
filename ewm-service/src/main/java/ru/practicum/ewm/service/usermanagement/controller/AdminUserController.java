@@ -6,9 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.usermanagement.dto.NewUserRequest;
 import ru.practicum.ewm.service.usermanagement.dto.UserDto;
+import ru.practicum.ewm.service.usermanagement.service.AdminUserService;
 
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -16,28 +16,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminUserController {
 
+    private final AdminUserService adminService;
+
     @GetMapping("/admin/users")
     public List<UserDto> getAllUsers(@RequestParam(value = "ids", required = false) List<Long> ids,
                                      @RequestParam(value = "from", defaultValue = "0") int from,
                                      @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("Received admin request to GET all users");
-        // TODO
-
-        return Collections.emptyList();
+        return adminService.getAllUsers(ids, from, size);
     }
 
     @PostMapping("/admin/users")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto createUser(@RequestBody @Valid NewUserRequest dto) {
         log.info("Received admin POST request to create new user: {}", dto);
-        // TODO email must be unique
-        return null;
+        return adminService.createUser(dto);
     }
 
     @DeleteMapping("/admin/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable("userId") Long userId) {
         log.info("Received admin request to DELETE user with ID={}", userId);
-        // TODO
+        adminService.deleteUser(userId);
     }
 }

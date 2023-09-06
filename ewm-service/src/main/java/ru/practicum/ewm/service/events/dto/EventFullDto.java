@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.ewm.service.categories.dto.CategoryDto;
-import ru.practicum.ewm.service.usermanagement.dto.UserShortDto;
 import ru.practicum.ewm.service.stats.common.util.DateUtil;
+import ru.practicum.ewm.service.usermanagement.dto.UserShortDto;
 
 import java.time.LocalDateTime;
 

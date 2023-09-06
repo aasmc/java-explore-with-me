@@ -6,6 +6,7 @@ import ru.practicum.ewm.service.categories.dto.NewCategoryDto;
 import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.usermanagement.domain.User;
+import ru.practicum.ewm.service.usermanagement.dto.NewUserRequest;
 
 import static ru.practicum.ewm.service.util.TestConstants.*;
 
@@ -24,6 +25,20 @@ public class TestData {
 
     public static User transientUser(String email, String name) {
         return User.builder().email(email).name(name).build();
+    }
+
+    public static NewUserRequest newUserRequest(String email, String name) {
+        return NewUserRequest.builder()
+                .name(name)
+                .email(email)
+                .build();
+    }
+
+    public static NewUserRequest newUserRequestFromUser(User user) {
+        return NewUserRequest.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
     }
 
     public static Category category(Long catId, String catName) {

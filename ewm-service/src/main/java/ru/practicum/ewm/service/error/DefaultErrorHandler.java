@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
-import static ru.practicum.ewm.service.error.ErrorConstants.*;
+import static ru.practicum.ewm.service.error.ErrorConstants.BAD_REQUEST_REASON;
+import static ru.practicum.ewm.service.error.ErrorConstants.UNKNOWN_REASON;
 
 @Slf4j
 @RestControllerAdvice

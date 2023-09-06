@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static ru.practicum.ewm.service.error.ErrorConstants.*;
-import static ru.practicum.ewm.service.util.TestConstants.*;
-import static ru.practicum.ewm.service.util.TestData.*;
+import static ru.practicum.ewm.service.error.ErrorConstants.NOT_FOUND_REASON;
+import static ru.practicum.ewm.service.util.TestConstants.CATEGORY_NAME;
+import static ru.practicum.ewm.service.util.TestData.transientCategory;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class CategoriesPublicServiceImplTest extends BaseIntegTest {
