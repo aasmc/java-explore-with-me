@@ -16,6 +16,8 @@ import java.util.Objects;
 @ToString
 @Table(name = "EVENTS")
 @Entity
+@AllArgsConstructor
+@Builder
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +35,7 @@ public class Event {
     private LocalDateTime eventDate;
     @ToString.Exclude
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
     @Embedded
     private Location location;

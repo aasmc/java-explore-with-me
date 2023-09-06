@@ -6,4 +6,5 @@ public class ErrorConstants {
     public static final String UNKNOWN_REASON = "Unknown reason";
     public static final String DATA_INTEGRITY_VIOLATION_REASON = "Integrity constraint has been violated.";
     public static final String CONDITIONS_NOT_MET_REASON = "For the requested operation the conditions are not met.";
+    public static final String FAILED_STATISTICS_REASON = "Error occurred while trying to retrieve statistics from Statistics Client.";
 }

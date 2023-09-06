@@ -1,9 +1,6 @@
 package ru.practicum.ewm.service.categories.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -14,6 +11,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "CATEGORIES")
 @ToString
+@Builder
+@AllArgsConstructor
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

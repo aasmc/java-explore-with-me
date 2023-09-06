@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.categories.dto.CategoryDto;
 import ru.practicum.ewm.service.categories.dto.NewCategoryDto;
+import ru.practicum.ewm.service.categories.service.CategoriesAdminService;
 
 import javax.validation.Valid;
 
@@ -14,19 +15,20 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class CategoriesAdminController {
 
+    private final CategoriesAdminService adminService;
+
     @PostMapping("/admin/categories")
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto createCategory(@Valid @RequestBody NewCategoryDto dto) {
         log.info("Received admin POST request to create new category: {}", dto);
-        // TODO Обратите внимание: имя категории должно быть уникальным
-        return null;
+        return adminService.createCategory(dto);
     }
 
     @DeleteMapping("/admin/categories/{catId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable("catId") Long catId) {
         log.info("Received admin request to DELETE category with ID={}", catId);
-        // TODO For a category to be deleted it cannot have any events.
+        adminService.deleteCategory(catId);
     }
 
     @PatchMapping("/admin/categories/{catId}")
@@ -34,8 +36,7 @@ public class CategoriesAdminController {
                                       @RequestBody NewCategoryDto dto) {
         log.info("Received admin PATCH request to update category with ID={}. To be updated to: {}",
                 catId, dto);
-        // TODO Обратите внимание: имя категории должно быть уникальным
-        return null;
+        return adminService.updateCategory(dto, catId);
     }
 
 }

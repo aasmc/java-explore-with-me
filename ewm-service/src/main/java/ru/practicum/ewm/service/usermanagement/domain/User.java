@@ -1,9 +1,6 @@
 package ru.practicum.ewm.service.usermanagement.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -14,6 +11,8 @@ import java.util.Objects;
 @ToString
 @Entity
 @Table(name = "USERS")
+@AllArgsConstructor
+@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

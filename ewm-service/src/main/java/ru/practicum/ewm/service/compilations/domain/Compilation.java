@@ -22,7 +22,6 @@ public class Compilation {
     private Long id;
     @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
     private Set<Event> events = new HashSet<>();
     private Boolean pinned;
 }

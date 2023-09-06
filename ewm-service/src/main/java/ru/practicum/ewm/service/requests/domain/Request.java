@@ -27,7 +27,6 @@ public class Request {
     private LocalDateTime created;
     @ToString.Exclude
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
     @ToString.Exclude
     @OneToOne(fetch = FetchType.LAZY)

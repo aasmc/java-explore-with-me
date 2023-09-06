@@ -21,4 +21,22 @@ public class EwmServiceException extends RuntimeException {
         this.status = status;
         this.timestamp = timestamp;
     }
+
+    public static EwmServiceException dataIntegrityException(String message) {
+        return new EwmServiceException(
+                message,
+                ErrorConstants.DATA_INTEGRITY_VIOLATION_REASON,
+                HttpStatus.CONFLICT,
+                LocalDateTime.now()
+        );
+    }
+
+    public static EwmServiceException notFoundException(String message) {
+        return new EwmServiceException(
+                message,
+                ErrorConstants.NOT_FOUND_REASON,
+                HttpStatus.NOT_FOUND,
+                LocalDateTime.now()
+        );
+    }
 }
