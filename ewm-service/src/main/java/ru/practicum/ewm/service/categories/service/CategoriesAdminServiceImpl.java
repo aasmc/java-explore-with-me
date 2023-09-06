@@ -13,12 +13,13 @@ import ru.practicum.ewm.service.error.EwmServiceException;
 
 import java.util.Optional;
 
+import static ru.practicum.ewm.service.error.ErrorConstants.CATEGORY_NOT_FOUND_MSG;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class CategoriesAdminServiceImpl implements CategoriesAdminService {
 
-    private static final String NOT_FOUND_MSG= "Category with id=%d was not found";
 
     private final CategoriesRepository categoriesRepository;
     private final CategoriesMapper mapper;
@@ -38,7 +39,7 @@ public class CategoriesAdminServiceImpl implements CategoriesAdminService {
         try {
             Optional<Category> byId = categoriesRepository.findById(catId);
             if (byId.isEmpty()) {
-                String msg = String.format(NOT_FOUND_MSG, catId);
+                String msg = String.format(CATEGORY_NOT_FOUND_MSG, catId);
                 throw EwmServiceException.notFoundException(msg);
             }
             categoriesRepository.delete(byId.get());
@@ -52,7 +53,7 @@ public class CategoriesAdminServiceImpl implements CategoriesAdminService {
     public CategoryDto updateCategory(NewCategoryDto dto, Long catId) {
         try {
             Category category = categoriesRepository.findById(catId).orElseThrow(() -> {
-                String msg = String.format(NOT_FOUND_MSG, catId);
+                String msg = String.format(CATEGORY_NOT_FOUND_MSG, catId);
                 return EwmServiceException.notFoundException(msg);
             });
             category.setName(dto.getName());
