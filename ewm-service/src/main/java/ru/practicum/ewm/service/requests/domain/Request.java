@@ -1,11 +1,9 @@
 package ru.practicum.ewm.service.requests.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.ewm.service.events.domain.Event;
+import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 
 import javax.persistence.*;
@@ -18,6 +16,8 @@ import java.util.Objects;
 @ToString
 @Table(name = "REQUESTS")
 @Entity
+@Builder
+@AllArgsConstructor
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +32,9 @@ public class Request {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester", nullable = false)
     private User requester;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ParticipationStatus status;
 
     @Override
     public boolean equals(Object obj) {

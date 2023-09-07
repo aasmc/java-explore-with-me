@@ -16,7 +16,7 @@ public class UpdateEventUserRequest {
     private String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATE_FORMAT)
     private LocalDateTime eventDate;
-    private Location location;
+    private LocationDto location;
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;

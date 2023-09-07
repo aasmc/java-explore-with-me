@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.dto.NewUserRequest;
 import ru.practicum.ewm.service.usermanagement.dto.UserDto;
+import ru.practicum.ewm.service.usermanagement.dto.UserShortDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,13 @@ public class UserMapper {
                 .id(entity.getId())
                 .name(entity.getName())
                 .email(entity.getEmail())
+                .build();
+    }
+
+    public UserShortDto mapToShortDto(User entity) {
+        return UserShortDto.builder()
+                .id(entity.getId())
+                .name(entity.getName())
                 .build();
     }
 

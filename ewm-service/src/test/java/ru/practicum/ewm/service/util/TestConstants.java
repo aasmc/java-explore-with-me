@@ -25,7 +25,7 @@ public class TestConstants {
 
     public static final int EVENT_PARTICIPATION_LIMIT = 10;
     public static final LocalDateTime EVENT_PUBLISHED_ON = EVENT_CREATED_ON.plusDays(1);
-
+    public static final LocalDateTime REQUEST_CREATED = EVENT_CREATED_ON.plusDays(1);
     public static final boolean EVENT_REQUEST_MODERATION = false;
     public static final String EVENT_TITLE = "Event Title";
     public static final String USER_NAME = "User Name";

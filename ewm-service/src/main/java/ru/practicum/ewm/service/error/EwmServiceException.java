@@ -39,4 +39,22 @@ public class EwmServiceException extends RuntimeException {
                 LocalDateTime.now()
         );
     }
+
+    public static EwmServiceException incorrectParameters(String message) {
+        return new EwmServiceException(
+                message,
+                ErrorConstants.BAD_REQUEST_REASON,
+                HttpStatus.BAD_REQUEST,
+                LocalDateTime.now()
+        );
+    }
+
+    public static EwmServiceException wrongConditions(String message) {
+        return new EwmServiceException(
+                message,
+                ErrorConstants.CONDITIONS_NOT_MET_REASON,
+                HttpStatus.CONFLICT,
+                LocalDateTime.now()
+        );
+    }
 }

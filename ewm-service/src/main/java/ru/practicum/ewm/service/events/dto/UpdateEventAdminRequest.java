@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service.events.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import lombok.Data;
 import ru.practicum.ewm.service.stats.common.util.DateUtil;
 
@@ -8,6 +9,7 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 public class UpdateEventAdminRequest {
     @Size(min = 20, max = 2000)
     private String annotation;
@@ -16,7 +18,7 @@ public class UpdateEventAdminRequest {
     private String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATE_FORMAT)
     private LocalDateTime eventDate;
-    private Location location;
+    private LocationDto location;
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;
