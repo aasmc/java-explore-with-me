@@ -1,7 +1,6 @@
 package ru.practicum.ewm.service.requests.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.ewm.service.BaseJpaTest;
@@ -10,7 +9,6 @@ import ru.practicum.ewm.service.categories.repository.CategoriesRepository;
 import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
 import ru.practicum.ewm.service.requests.domain.EventStatusCount;
-import ru.practicum.ewm.service.requests.domain.Request;
 import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
@@ -31,20 +29,13 @@ class RequestsRepositoryTest extends BaseJpaTest {
     private final UsersRepository usersRepository;
     private final CategoriesRepository categoriesRepository;
 
-    @BeforeEach
-    void clearDb() {
-        requestsRepository.deleteAll();
-        usersRepository.deleteAll();
-        eventsRepository.deleteAll();
-    }
-
     @Test
     void countByStatus_returnsCorrectList() {
         List<Event> events = saveFiveEvents();
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         // create 100 requests. 20 requests for each event.
         // all requests are in CONFIRMED state
-        save100RequestsForEvents(events);
+        save100RequestsForEvents(events, requestsRepository, usersRepository);
 
         List<EventStatusCount> eventStatusCounts = requestsRepository
                 .countByStatus(ParticipationStatus.CONFIRMED, eventIds);
@@ -59,31 +50,13 @@ class RequestsRepositoryTest extends BaseJpaTest {
 
     private List<Event> saveFiveEvents() {
         List<Event> saved = new ArrayList<>();
-        Category category = saveCategory(transientCategory(CATEGORY_NAME));
-        User user = saveUser(transientUser(USER_EMAIL, USER_NAME));
+        Category category = saveCategory(transientCategory(CATEGORY_NAME), categoriesRepository);
+        User user = saveUser(transientUser(USER_EMAIL, USER_NAME), usersRepository);
         for (int i = 0; i < 5; i++) {
             Event event = transientEvent(category, user, false);
             saved.add(eventsRepository.save(event));
         }
         return saved;
-    }
-
-    private void save100RequestsForEvents(List<Event> events) {
-        for (int i = 0; i < 100; i++) {
-            int eventIdx = i % events.size();
-            Event event = events.get(eventIdx);
-            User requester = saveUser(transientUser(USER_EMAIL + i, USER_NAME + i));
-            Request request = transientRequest(event, requester, ParticipationStatus.CONFIRMED);
-            requestsRepository.save(request);
-        }
-    }
-
-    private Category saveCategory(Category category) {
-        return categoriesRepository.save(category);
-    }
-
-    private User saveUser(User user) {
-        return usersRepository.save(user);
     }
 
 }

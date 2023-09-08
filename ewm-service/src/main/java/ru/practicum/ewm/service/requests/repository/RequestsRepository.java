@@ -3,8 +3,8 @@ package ru.practicum.ewm.service.requests.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.practicum.ewm.service.requests.domain.Request;
 import ru.practicum.ewm.service.requests.domain.EventStatusCount;
+import ru.practicum.ewm.service.requests.domain.Request;
 import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
 
 import java.util.HashMap;

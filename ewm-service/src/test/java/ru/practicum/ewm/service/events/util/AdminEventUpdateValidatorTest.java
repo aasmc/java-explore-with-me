@@ -12,7 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.practicum.ewm.service.error.ErrorConstants.CONDITIONS_NOT_MET_REASON;
 import static ru.practicum.ewm.service.util.TestConstants.EVENT_PUBLISHED_ON;
-import static ru.practicum.ewm.service.util.TestData.*;
+import static ru.practicum.ewm.service.util.TestData.defaultPendingEvent;
+import static ru.practicum.ewm.service.util.TestData.updateEventAdminRequestPublishAction;
 
 class AdminEventUpdateValidatorTest {
 
@@ -24,7 +25,7 @@ class AdminEventUpdateValidatorTest {
         Event event = defaultPendingEvent();
         event.setState(EventState.PENDING);
         event.setPublishedOn(EVENT_PUBLISHED_ON);
-        UpdateEventAdminRequest dto = updateEventAdminRequest();
+        UpdateEventAdminRequest dto = updateEventAdminRequestPublishAction();
         dto.setEventDate(EVENT_PUBLISHED_ON.plusHours(2));
         dto.setStateAction(AdminEventStateAction.REJECT_EVENT);
         assertTrue(passed);
@@ -34,7 +35,7 @@ class AdminEventUpdateValidatorTest {
     void validateEventUpdate_statePUBLISHED_actionREJECT_EVENT_throws() {
         Event event = defaultPendingEvent();
         event.setState(EventState.PUBLISHED);
-        UpdateEventAdminRequest dto = updateEventAdminRequest();
+        UpdateEventAdminRequest dto = updateEventAdminRequestPublishAction();
         dto.setEventDate(null);
         dto.setStateAction(AdminEventStateAction.REJECT_EVENT);
 
@@ -47,7 +48,7 @@ class AdminEventUpdateValidatorTest {
     void validateEventUpdate_stateNotPENDING_actionPUBLISH_EVENT_throws() {
         Event event = defaultPendingEvent();
         event.setState(EventState.PUBLISHED);
-        UpdateEventAdminRequest dto = updateEventAdminRequest();
+        UpdateEventAdminRequest dto = updateEventAdminRequestPublishAction();
         dto.setEventDate(null);
         dto.setStateAction(AdminEventStateAction.PUBLISH_EVENT);
 
@@ -60,7 +61,7 @@ class AdminEventUpdateValidatorTest {
     void validateEventUpdate_publishDateWrong_throws() {
         Event event = defaultPendingEvent();
         event.setPublishedOn(EVENT_PUBLISHED_ON);
-        UpdateEventAdminRequest dto = updateEventAdminRequest();
+        UpdateEventAdminRequest dto = updateEventAdminRequestPublishAction();
         dto.setEventDate(event.getPublishedOn().plusMinutes(10));
         dto.setStateAction(null);
 

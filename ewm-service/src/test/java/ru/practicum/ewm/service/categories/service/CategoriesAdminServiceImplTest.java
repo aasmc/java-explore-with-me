@@ -27,7 +27,7 @@ import static ru.practicum.ewm.service.util.TestData.*;
 class CategoriesAdminServiceImplTest extends BaseIntegTest {
 
     private final CategoriesAdminServiceImpl service;
-    private final CategoriesRepository repository;
+    private final CategoriesRepository categoriesRepository;
     private final EventsRepository eventsRepository;
     private final UsersRepository usersRepository;
 
@@ -103,7 +103,7 @@ class CategoriesAdminServiceImplTest extends BaseIntegTest {
         Category category = saveCategory(CATEGORY_NAME);
         service.deleteCategory(category.getId());
 
-        Optional<Category> byId = repository.findById(category.getId());
+        Optional<Category> byId = categoriesRepository.findById(category.getId());
         assertThat(byId).isEmpty();
     }
 
@@ -129,7 +129,7 @@ class CategoriesAdminServiceImplTest extends BaseIntegTest {
 
     private Category saveCategory(String name) {
         Category category = transientCategory(name);
-        return repository.saveAndFlush(category);
+        return categoriesRepository.saveAndFlush(category);
     }
 
     private User saveUser() {

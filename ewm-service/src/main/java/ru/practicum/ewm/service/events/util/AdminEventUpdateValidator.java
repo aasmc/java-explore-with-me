@@ -9,9 +9,12 @@ import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 
 import java.time.LocalDateTime;
 
-import static ru.practicum.ewm.service.error.ErrorConstants.*;
-import static ru.practicum.ewm.service.events.dto.AdminEventStateAction.*;
-import static ru.practicum.ewm.service.events.dto.EventState.*;
+import static ru.practicum.ewm.service.error.ErrorConstants.EVENT_WRONG_STATE_MSG;
+import static ru.practicum.ewm.service.error.ErrorConstants.EVENT_WRONG_UPDATE_DATE_MSG;
+import static ru.practicum.ewm.service.events.dto.AdminEventStateAction.PUBLISH_EVENT;
+import static ru.practicum.ewm.service.events.dto.AdminEventStateAction.REJECT_EVENT;
+import static ru.practicum.ewm.service.events.dto.EventState.PENDING;
+import static ru.practicum.ewm.service.events.dto.EventState.PUBLISHED;
 
 @Component
 public class AdminEventUpdateValidator {

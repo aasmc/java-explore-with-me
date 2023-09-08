@@ -1,7 +1,6 @@
 package ru.practicum.ewm.service.events.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.ewm.service.BaseJpaTest;
@@ -11,16 +10,14 @@ import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
-import ru.practicum.ewm.service.util.OffsetBasedPageRequest;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static ru.practicum.ewm.service.util.TestConstants.*;
+import static ru.practicum.ewm.service.util.TestConstants.EVENT_DATE;
 import static ru.practicum.ewm.service.util.TestData.*;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -30,18 +27,57 @@ class EventsRepositoryTest extends BaseJpaTest {
     private final CategoriesRepository categoriesRepository;
     private final UsersRepository usersRepository;
 
-    @BeforeEach
-    void clearDb() {
-        categoriesRepository.deleteAll();
-        usersRepository.deleteAll();
-        eventsRepository.deleteAll();
+    @Test
+    void findAllEventsBy_returnsCorrectList() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPendingEvents(categories,
+                users,
+                eventsRepository);
+        for (int i = 0; i < 10; i++) { // 10 events will pass by dates
+            Event event = events.get(i);
+            event.setEventDate(EVENT_DATE.plusDays(i + 1));
+            // 10 events will pass by state
+            event.setState(EventState.PUBLISHED);
+            eventsRepository.saveAndFlush(event);
+        }
+        LocalDateTime start = EVENT_DATE.plusDays(1);
+        LocalDateTime end = EVENT_DATE.plusDays(10);
+
+        List<EventState> states = List.of(EventState.PUBLISHED, EventState.CANCELED);
+
+        List<Long> categoryIds = events.stream()
+                .map(Event::getCategory)
+                .map(Category::getId)
+                .collect(Collectors.toList());
+
+        List<Long> userIds = events.stream()
+                .map(Event::getUser)
+                .map(User::getId)
+                .sorted()
+                .collect(Collectors.toList());
+        // in total we will have to retrieve 10 events
+        List<Event> result = eventsRepository
+                .findAllEventsBy(userIds, states, categoryIds, start, end, 0, 10);
+        assertThat(result).hasSize(10);
+        assertThat(result.get(0).getUser().getId()).isEqualTo(userIds.get(0));
+        assertThat(result.get(0).getCategory().getId()).isEqualTo(categoryIds.get(0));
+        assertThat(result.get(0).getEventDate()).isEqualTo(EVENT_DATE.plusDays(1));
+        assertThat(result.get(0).getState()).isEqualTo(EventState.PUBLISHED);
+
+        assertThat(result.get(1).getUser().getId()).isEqualTo(userIds.get(1));
+        assertThat(result.get(1).getCategory().getId()).isEqualTo(categoryIds.get(1));
+        assertThat(result.get(1).getEventDate()).isEqualTo(EVENT_DATE.plusDays(2));
+        assertThat(result.get(1).getState()).isEqualTo(EventState.PUBLISHED);
     }
 
     @Test
     void findAllEventsBy_whenAllParamsNotNull_returnsCorrectList() {
-        List<User> users = getTenTransientUsers();
-        List<Category> categories = getTenTransientCategories();
-        List<Event> events = saveTenEvents(categories, users);
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPendingEvents(categories,
+                users,
+                eventsRepository);
         for (int i = 0; i < 5; i++) { // first 5 events will pass by dates
             Event event = events.get(i);
             event.setEventDate(EVENT_DATE.plusDays(i + 1));
@@ -70,7 +106,7 @@ class EventsRepositoryTest extends BaseJpaTest {
                 .collect(Collectors.toList());
         // in total we will have to retrieve 2 events
         List<Event> result = eventsRepository
-                .findAllEventsBy(userIds, states, categoryIds, start, end, new OffsetBasedPageRequest(0, 10));
+                .findAllEventsBy(userIds, states, categoryIds, start, end, 0, 10);
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getUser().getId()).isEqualTo(userIds.get(0));
         assertThat(result.get(0).getCategory().getId()).isEqualTo(categoryIds.get(0));
@@ -85,9 +121,11 @@ class EventsRepositoryTest extends BaseJpaTest {
 
     @Test
     void findAllEventsBy_startAndEndNotNull_returnsCorrectList() {
-        List<User> users = getTenTransientUsers();
-        List<Category> categories = getTenTransientCategories();
-        List<Event> events = saveTenEvents(categories, users);
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPendingEvents(categories,
+                users,
+                eventsRepository);
         for (int i = 0; i < 5; i++) {
             Event event = events.get(i);
             event.setEventDate(EVENT_DATE.plusDays(i + 1));
@@ -96,7 +134,7 @@ class EventsRepositoryTest extends BaseJpaTest {
         LocalDateTime start = EVENT_DATE.plusDays(1);
         LocalDateTime end = EVENT_DATE.plusDays(5);
         List<Event> result = eventsRepository
-                .findAllEventsBy(null, null, null, start, end, new OffsetBasedPageRequest(0, 10))
+                .findAllEventsBy(null, null, null, start, end,0, 10)
                 .stream()
                 .sorted(Comparator.comparing(Event::getEventDate))
                 .collect(Collectors.toList());
@@ -112,9 +150,11 @@ class EventsRepositoryTest extends BaseJpaTest {
 
     @Test
     void findAllEventsBy_categoriesNotNull_returnsCorrectList() {
-        List<User> users = getTenTransientUsers();
-        List<Category> categories = getTenTransientCategories();
-        List<Event> events = saveTenEvents(categories, users);
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPendingEvents(categories,
+                users,
+                eventsRepository);
 
         List<Long> categoryIds = events.stream()
                 .map(Event::getCategory)
@@ -124,7 +164,7 @@ class EventsRepositoryTest extends BaseJpaTest {
                 .collect(Collectors.toList());
 
         List<Event> result = eventsRepository
-                .findAllEventsBy(null, null, categoryIds, null, null, new OffsetBasedPageRequest(0, 10))
+                .findAllEventsBy(null, null, categoryIds, null, null, 0, 10)
                 .stream()
                 .sorted(Comparator.comparingLong(e -> e.getCategory().getId()))
                 .collect(Collectors.toList());
@@ -139,9 +179,11 @@ class EventsRepositoryTest extends BaseJpaTest {
 
     @Test
     void findAllEventsBy_statesNotNull_returnsCorrectList() {
-        List<User> users = getTenTransientUsers();
-        List<Category> categories = getTenTransientCategories();
-        List<Event> events = saveTenEvents(categories, users);
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPendingEvents(categories,
+                users,
+                eventsRepository);
         for (int i = 0; i < 5; i++) {
             Event event = events.get(i);
             event.setState(EventState.PUBLISHED);
@@ -150,7 +192,7 @@ class EventsRepositoryTest extends BaseJpaTest {
 
         List<EventState> states = List.of(EventState.PENDING, EventState.CANCELED);
         List<Event> result = eventsRepository
-                .findAllEventsBy(null, states, null, null, null, new OffsetBasedPageRequest(0, 10));
+                .findAllEventsBy(null, states, null, null, null, 0, 10);
 
         assertThat(result).hasSize(5);
         for (int i = 0; i < 5; i++) {
@@ -161,10 +203,11 @@ class EventsRepositoryTest extends BaseJpaTest {
 
     @Test
     void findAllEventsBy_usersNotNull_returnsCorrectList() {
-        List<User> users = getTenTransientUsers();
-
-        List<Category> categories = getTenTransientCategories();
-        List<Event> events = saveTenEvents(categories, users);
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPendingEvents(categories,
+                users,
+                eventsRepository);
         List<Long> userIds = events.stream()
                 .map(Event::getUser)
                 .map(User::getId)
@@ -174,7 +217,7 @@ class EventsRepositoryTest extends BaseJpaTest {
                 .collect(Collectors.toList());
 
         List<Event> result = eventsRepository
-                .findAllEventsBy(userIds, null, null, null, null, new OffsetBasedPageRequest(0, 10))
+                .findAllEventsBy(userIds, null, null, null, null, 0, 10)
                 .stream()
                 .sorted(Comparator.comparingLong(e -> e.getUser().getId()))
                 .collect(Collectors.toList());
@@ -189,47 +232,15 @@ class EventsRepositoryTest extends BaseJpaTest {
 
     @Test
     void findAllEventsBy_allParamsNull_returnsAllEvents() {
-        List<User> users = getTenTransientUsers();
-        List<Category> categories = getTenTransientCategories();
-        List<Event> expected = saveTenEvents(categories, users);
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> expected = getTenSavedPendingEvents(categories,
+                users,
+                eventsRepository);
         List<Event> result = eventsRepository
-                .findAllEventsBy(null, null, null, null, null, new OffsetBasedPageRequest(0, 10));
+                .findAllEventsBy(null, null, null, null, null, 0, 10);
         assertThat(result).isEqualTo(expected);
     }
 
-    private List<User> getTenTransientUsers() {
-        List<User> users = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            users.add(transientUser(USER_EMAIL + i, USER_NAME + i));
-        }
-        return users;
-    }
-
-    private List<Category> getTenTransientCategories() {
-        List<Category> categories = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            categories.add(transientCategory(CATEGORY_NAME + i));
-        }
-        return categories;
-    }
-
-    private List<Event> saveTenEvents(List<Category> categories, List<User> users) {
-        List<Event> saved = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            Category category = saveCategory(categories.get(i));
-            User user = saveUser(users.get(i));
-            Event event = transientEvent(category, user, false);
-            saved.add(eventsRepository.save(event));
-        }
-        return saved;
-    }
-
-    private Category saveCategory(Category category) {
-        return categoriesRepository.save(category);
-    }
-
-    private User saveUser(User user) {
-        return usersRepository.save(user);
-    }
 
 }

@@ -2,6 +2,7 @@ package ru.practicum.ewm.service;
 
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -12,6 +13,10 @@ import ru.practicum.ewm.service.util.EwmContainer;
 @DataJpaTest
 @Testcontainers
 @Transactional
+@Sql(
+        scripts = "classpath:db/clear-db.sql",
+        executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
+)
 public class BaseJpaTest {
 
     @Container

@@ -31,4 +31,8 @@ public class DateUtil {
         String decoded = URLDecoder.decode(encodedDate, StandardCharsets.UTF_8);
         return LocalDateTime.parse(decoded, FORMATTER);
     }
+
+    public LocalDateTime getDefaultDate() {
+        return LocalDateTime.now();
+    }
 }

@@ -34,7 +34,7 @@ class AdminEventUpdaterImplTest {
 
     @Test
     void updateEvent_updatesEvent() {
-        UpdateEventAdminRequest request = updateEventAdminRequest();
+        UpdateEventAdminRequest request = updateEventAdminRequestPublishAction();
         Category newCat = Category.builder().id(request.getCategory()).name("New Cat").build();
         User user = transientUser(USER_EMAIL, USER_NAME);
         user.setId(1L);
@@ -65,7 +65,7 @@ class AdminEventUpdaterImplTest {
 
     @Test
     void updateEvent_throws_whenUpdatedCategoryNotFound() {
-        UpdateEventAdminRequest request = updateEventAdminRequest();
+        UpdateEventAdminRequest request = updateEventAdminRequestPublishAction();
 
         Mockito
                 .when(categoriesRepository.findById(request.getCategory()))
