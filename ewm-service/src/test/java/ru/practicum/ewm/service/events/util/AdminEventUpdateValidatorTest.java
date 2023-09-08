@@ -11,9 +11,9 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static ru.practicum.ewm.service.error.ErrorConstants.CONDITIONS_NOT_MET_REASON;
-import static ru.practicum.ewm.service.util.TestConstants.EVENT_PUBLISHED_ON;
-import static ru.practicum.ewm.service.util.TestData.defaultPendingEvent;
-import static ru.practicum.ewm.service.util.TestData.updateEventAdminRequestPublishAction;
+import static ru.practicum.ewm.service.testutil.TestConstants.EVENT_PUBLISHED_ON;
+import static ru.practicum.ewm.service.testutil.TestData.defaultPendingEvent;
+import static ru.practicum.ewm.service.testutil.TestData.updateEventAdminRequestPublishAction;
 
 class AdminEventUpdateValidatorTest {
 

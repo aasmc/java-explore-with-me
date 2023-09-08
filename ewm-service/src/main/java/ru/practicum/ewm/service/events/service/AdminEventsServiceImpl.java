@@ -12,12 +12,11 @@ import ru.practicum.ewm.service.events.mapper.EventMapper;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
 import ru.practicum.ewm.service.events.service.updater.admin.AdminEventUpdater;
 import ru.practicum.ewm.service.events.util.AdminEventUpdateValidator;
+import ru.practicum.ewm.service.events.util.DateHelper;
 import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
 import ru.practicum.ewm.service.requests.repository.RequestsRepository;
-import ru.practicum.ewm.service.stats.common.util.DateUtil;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,7 +34,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
     private final AdminEventUpdateValidator updateValidator;
     private final AdminEventUpdater updater;
     private final EventMapper mapper;
-    private final DateUtil dateUtil;
+    private final DateHelper dateHelper;
 
 
     @Override
@@ -49,8 +48,8 @@ public class AdminEventsServiceImpl implements AdminEventsService {
                                            int size) {
         List<Event> events = eventsRepository
                 .findAllEventsBy(users, states, categories, rangeStart, rangeEnd, from, size);
-        rangeStart = getStartDateIfNull(rangeStart, events);
-        rangeEnd = getEndDateIfNull(rangeEnd);
+        rangeStart = dateHelper.getStartDateOrComputeIfNull(rangeStart, events);
+        rangeEnd = dateHelper.getEndDateOrComputeIfNull(rangeEnd);
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Long> eventsViews = getEventViews(eventIds, rangeStart, rangeEnd);
         Map<Long, Long> confirmedEventIdToCount = getConfirmedCount(eventIds);
@@ -77,20 +76,5 @@ public class AdminEventsServiceImpl implements AdminEventsService {
 
     private Map<Long, Long> getConfirmedCount(List<Long> eventsIds) {
         return requestsRepository.getEventIdCountByParticipationStatus(ParticipationStatus.CONFIRMED, eventsIds);
-    }
-
-    private LocalDateTime getStartDateIfNull(LocalDateTime start, List<Event> events) {
-        if (start == null) {
-
-            return events.stream()
-                    .map(Event::getPublishedOn)
-                    .min(Comparator.naturalOrder())
-                    .orElse(dateUtil.getDefaultDate());
-        }
-        return start;
-    }
-
-    private LocalDateTime getEndDateIfNull(LocalDateTime end) {
-        return end == null ? dateUtil.getDefaultDate() : end;
     }
 }

@@ -20,8 +20,8 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.practicum.ewm.service.error.ErrorConstants.DATA_INTEGRITY_VIOLATION_REASON;
 import static ru.practicum.ewm.service.error.ErrorConstants.NOT_FOUND_REASON;
-import static ru.practicum.ewm.service.util.TestConstants.*;
-import static ru.practicum.ewm.service.util.TestData.*;
+import static ru.practicum.ewm.service.testutil.TestConstants.*;
+import static ru.practicum.ewm.service.testutil.TestData.*;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class CategoriesAdminServiceImplTest extends BaseIntegTest {

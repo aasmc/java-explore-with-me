@@ -26,7 +26,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.when;
-import static ru.practicum.ewm.service.util.TestData.*;
+import static ru.practicum.ewm.service.testutil.TestData.*;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Rollback(value = false)

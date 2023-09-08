@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static ru.practicum.ewm.service.util.TestData.eventFullDtoFromEvent;
-import static ru.practicum.ewm.service.util.TestData.transientEvent;
+import static ru.practicum.ewm.service.testutil.TestData.eventFullDtoFromEvent;
+import static ru.practicum.ewm.service.testutil.TestData.transientEvent;
 
 class EventMapperTest {
 

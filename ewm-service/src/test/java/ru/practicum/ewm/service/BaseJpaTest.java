@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ru.practicum.ewm.service.util.EwmContainer;
+import ru.practicum.ewm.service.testutil.EwmContainer;
 
 @ActiveProfiles("integtest")
 @DataJpaTest

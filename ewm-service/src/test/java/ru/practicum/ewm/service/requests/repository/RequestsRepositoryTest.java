@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static ru.practicum.ewm.service.util.TestConstants.*;
-import static ru.practicum.ewm.service.util.TestData.*;
+import static ru.practicum.ewm.service.testutil.TestConstants.*;
+import static ru.practicum.ewm.service.testutil.TestData.*;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class RequestsRepositoryTest extends BaseJpaTest {

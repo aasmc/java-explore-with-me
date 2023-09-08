@@ -7,6 +7,8 @@ import ru.practicum.ewm.service.BaseJpaTest;
 import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.repository.CategoriesRepository;
 import ru.practicum.ewm.service.events.domain.Event;
+import ru.practicum.ewm.service.events.domain.EventShort;
+import ru.practicum.ewm.service.events.dto.EventSort;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
@@ -17,8 +19,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static ru.practicum.ewm.service.util.TestConstants.EVENT_DATE;
-import static ru.practicum.ewm.service.util.TestData.*;
+import static ru.practicum.ewm.service.testutil.TestConstants.EVENT_DATE;
+import static ru.practicum.ewm.service.testutil.TestConstants.EVENT_PUBLISHED_ON;
+import static ru.practicum.ewm.service.testutil.TestData.*;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class EventsRepositoryTest extends BaseJpaTest {
@@ -26,6 +29,147 @@ class EventsRepositoryTest extends BaseJpaTest {
     private final EventsRepository eventsRepository;
     private final CategoriesRepository categoriesRepository;
     private final UsersRepository usersRepository;
+
+    @Test
+    void findAllShortEventsBy_whenDBHasUnpublishedEvents_returnsOnlyPublishedEvents() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPublishedEvents(categories,
+                users,
+                eventsRepository);
+        getTenSavedPendingEvents(categories, users, eventsRepository);
+
+        List<EventShort> result = eventsRepository.findAllShortEventsBy("event",
+                null,
+                false,
+                null,
+                null,
+                EventSort.EVENT_DATE,
+                0,
+                20);
+        assertThat(result).hasSize(10);
+        List<EventShort> expected = eventShortListFromEventList(events);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void findAllShortEventsBy_whenStartAndEndIsNull_returnsCorrectList() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPublishedEvents(categories,
+                users,
+                eventsRepository);
+
+        List<EventShort> result = eventsRepository.findAllShortEventsBy("event",
+                null,
+                false,
+                null,
+                null,
+                EventSort.EVENT_DATE,
+                0,
+                10);
+        assertThat(result).hasSize(10);
+        List<EventShort> expected = eventShortListFromEventList(events);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void findAllShortEventsBy_whenNoEventSuitsPaid_returnsEmptyList() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        getTenSavedPublishedEvents(categories,
+                users,
+                eventsRepository);
+
+        List<EventShort> result = eventsRepository.findAllShortEventsBy("event",
+                null,
+                true,
+                EVENT_PUBLISHED_ON,
+                LocalDateTime.now().plusDays(10),
+                EventSort.EVENT_DATE,
+                0,
+                10);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void findAllShortEventsBy_whenNotAllCategories_returnsCorrectList() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPublishedEvents(categories,
+                users,
+                eventsRepository);
+        List<Long> categoryIds = events.stream()
+                .map(Event::getCategory)
+                .map(Category::getId)
+                .limit(5)
+                .collect(Collectors.toList());
+
+
+        List<EventShort> result = eventsRepository.findAllShortEventsBy("event",
+                categoryIds,
+                false,
+                EVENT_PUBLISHED_ON,
+                LocalDateTime.now().plusDays(10),
+                EventSort.EVENT_DATE,
+                0,
+                10);
+        assertThat(result).hasSize(5);
+        List<EventShort> expected = eventShortListFromEventList(events).subList(0, 5);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void findAllShortEventsBy_whenQueryEmpty_returnsCorrectList() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPublishedEvents(categories,
+                users,
+                eventsRepository);
+        List<Long> categoryIds = events.stream()
+                .map(Event::getCategory)
+                .map(Category::getId)
+                .collect(Collectors.toList());
+
+
+        List<EventShort> result = eventsRepository.findAllShortEventsBy("",
+                categoryIds,
+                false,
+                EVENT_PUBLISHED_ON,
+                LocalDateTime.now().plusDays(10),
+                EventSort.EVENT_DATE,
+                0,
+                10);
+        assertThat(result).hasSize(10);
+        List<EventShort> expected = eventShortListFromEventList(events);
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void findAllShortEventsBy_returnsCorrectList() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<Event> events = getTenSavedPublishedEvents(categories,
+                users,
+                eventsRepository);
+        List<Long> categoryIds = events.stream()
+                .map(Event::getCategory)
+                .map(Category::getId)
+                .collect(Collectors.toList());
+
+
+        List<EventShort> result = eventsRepository.findAllShortEventsBy("event",
+                categoryIds,
+                false,
+                EVENT_PUBLISHED_ON,
+                LocalDateTime.now().plusDays(10),
+                EventSort.EVENT_DATE,
+                0,
+                10);
+        assertThat(result).hasSize(10);
+        List<EventShort> expected = eventShortListFromEventList(events);
+        assertThat(result).isEqualTo(expected);
+    }
 
     @Test
     void findAllEventsBy_returnsCorrectList() {
@@ -170,11 +314,11 @@ class EventsRepositoryTest extends BaseJpaTest {
                 .collect(Collectors.toList());
 
         assertThat(result).hasSize(5);
-        assertThat(result.get(0).getUser().getId()).isEqualTo(categoryIds.get(0));
-        assertThat(result.get(1).getUser().getId()).isEqualTo(categoryIds.get(1));
-        assertThat(result.get(2).getUser().getId()).isEqualTo(categoryIds.get(2));
-        assertThat(result.get(3).getUser().getId()).isEqualTo(categoryIds.get(3));
-        assertThat(result.get(4).getUser().getId()).isEqualTo(categoryIds.get(4));
+        assertThat(result.get(0).getCategory().getId()).isEqualTo(categoryIds.get(0));
+        assertThat(result.get(1).getCategory().getId()).isEqualTo(categoryIds.get(1));
+        assertThat(result.get(2).getCategory().getId()).isEqualTo(categoryIds.get(2));
+        assertThat(result.get(3).getCategory().getId()).isEqualTo(categoryIds.get(3));
+        assertThat(result.get(4).getCategory().getId()).isEqualTo(categoryIds.get(4));
     }
 
     @Test

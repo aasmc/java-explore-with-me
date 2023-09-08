@@ -1,12 +1,14 @@
-package ru.practicum.ewm.service.util;
+package ru.practicum.ewm.service.testutil;
 
 import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.dto.CategoryDto;
 import ru.practicum.ewm.service.categories.dto.NewCategoryDto;
 import ru.practicum.ewm.service.categories.repository.CategoriesRepository;
 import ru.practicum.ewm.service.events.domain.Event;
+import ru.practicum.ewm.service.events.domain.EventShort;
 import ru.practicum.ewm.service.events.domain.Location;
 import ru.practicum.ewm.service.events.dto.EventFullDto;
+import ru.practicum.ewm.service.events.dto.EventShortDto;
 import ru.practicum.ewm.service.events.dto.LocationDto;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
@@ -25,7 +27,7 @@ import java.util.stream.Collectors;
 import static ru.practicum.ewm.service.events.dto.AdminEventStateAction.PUBLISH_EVENT;
 import static ru.practicum.ewm.service.events.dto.AdminEventStateAction.REJECT_EVENT;
 import static ru.practicum.ewm.service.events.dto.EventState.*;
-import static ru.practicum.ewm.service.util.TestConstants.*;
+import static ru.practicum.ewm.service.testutil.TestConstants.*;
 
 public class TestData {
     public static NewCategoryDto newCategoryDto(String name) {
@@ -86,9 +88,9 @@ public class TestData {
     }
 
     public static Event eventFromUpdateRequest(UpdateEventAdminRequest request,
-                                          Long eventId,
-                                          User user,
-                                          Category category) {
+                                               Long eventId,
+                                               User user,
+                                               Category category) {
         return Event.builder()
                 .id(eventId)
                 .annotation(request.getAnnotation())
@@ -214,17 +216,92 @@ public class TestData {
     }
 
     public static List<Event> getTenSavedPublishedEvents(List<Category> savedCategories,
-                                                       List<User> savedUsers,
-                                                       EventsRepository eventsRepository) {
+                                                         List<User> savedUsers,
+                                                         EventsRepository eventsRepository) {
         List<Event> saved = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Category category = savedCategories.get(i);
             User user = savedUsers.get(i);
             Event event = transientEvent(category, user, false);
             event.setState(PUBLISHED);
+            event.setEventDate(EVENT_DATE.plusDays(i + 1));
+            event.setPublishedOn(EVENT_PUBLISHED_ON);
             saved.add(eventsRepository.save(event));
         }
         return saved;
+    }
+
+    public static List<Event> getTenSavedPublishedEvents(List<Category> savedCategories,
+                                                                               List<User> savedUsers,
+                                                                               EventsRepository eventsRepository,
+                                                                               int participationLimit) {
+        List<Event> saved = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Category category = savedCategories.get(i);
+            User user = savedUsers.get(i);
+            Event event = transientEvent(category, user, false);
+            event.setState(PUBLISHED);
+            event.setEventDate(EVENT_DATE.plusDays(i + 1));
+            event.setPublishedOn(EVENT_PUBLISHED_ON);
+            event.setParticipationLimit(participationLimit);
+            saved.add(eventsRepository.save(event));
+        }
+        return saved;
+    }
+
+    public static List<EventShort> eventShortListFromEventList(List<Event> events) {
+        return events.stream().map(TestData::eventShortFromEvent)
+                .collect(Collectors.toList());
+    }
+
+    public static EventShort eventShortFromEvent(Event event) {
+        return new EventShort(
+                event.getId(),
+                event.getAnnotation(),
+                event.getCategory(),
+                event.getEventDate(),
+                event.getUser().getId(),
+                event.getUser().getName(),
+                event.getPaid(),
+                event.getTitle(),
+                event.getParticipationLimit(),
+                event.getPublishedOn()
+        );
+    }
+
+    public static List<EventShortDto> eventShortDtoListFromEventList(List<Event> events,
+                                                                     Long confirmed,
+                                                                     Long views) {
+        return events.stream().map(e -> eventShortDtoFromEvent(e, confirmed, views))
+                .collect(Collectors.toList());
+    }
+
+    public static EventShortDto eventShortDtoFromEvent(Event event, Long confirmed, Long views) {
+        return EventShortDto.builder()
+                .id(event.getId())
+                .annotation(event.getAnnotation())
+                .category(categoryDtoFromCategory(event.getCategory()))
+                .confirmedRequests(confirmed)
+                .eventDate(event.getEventDate())
+                .initiator(userShortDtoFromUser(event.getUser()))
+                .paid(event.getPaid())
+                .title(event.getTitle())
+                .views(views)
+                .build();
+    }
+
+    public static UserShortDto userShortDtoFromUser(User user) {
+        return UserShortDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .build();
+    }
+
+    public static CategoryDto categoryDtoFromCategory(Category category) {
+        return CategoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
     }
 
     public static List<Category> getTenSavedCategories(CategoriesRepository categoriesRepository) {
@@ -250,8 +327,8 @@ public class TestData {
     }
 
     public static List<Request> save100RequestsForEvents(List<Event> events,
-                                          RequestsRepository requestsRepository,
-                                          UsersRepository usersRepository) {
+                                                         RequestsRepository requestsRepository,
+                                                         UsersRepository usersRepository) {
         List<Request> requests = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             int eventIdx = i % events.size();

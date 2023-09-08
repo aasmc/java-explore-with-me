@@ -1,6 +1,8 @@
 package ru.practicum.ewm.service.events.repository;
 
 import ru.practicum.ewm.service.events.domain.Event;
+import ru.practicum.ewm.service.events.domain.EventShort;
+import ru.practicum.ewm.service.events.dto.EventSort;
 import ru.practicum.ewm.service.events.dto.EventState;
 
 import java.time.LocalDateTime;
@@ -15,5 +17,14 @@ public interface CustomEventsRepository {
                                 LocalDateTime end,
                                 int from,
                                 int size);
+
+    List<EventShort> findAllShortEventsBy(String text,
+                                          List<Long> categories,
+                                          Boolean paid,
+                                          LocalDateTime start,
+                                          LocalDateTime end,
+                                          EventSort sort,
+                                          int from,
+                                          int size);
 
 }

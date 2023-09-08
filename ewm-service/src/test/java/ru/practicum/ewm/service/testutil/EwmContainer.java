@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.util;
+package ru.practicum.ewm.service.testutil;
 
 import org.testcontainers.containers.PostgreSQLContainer;
 

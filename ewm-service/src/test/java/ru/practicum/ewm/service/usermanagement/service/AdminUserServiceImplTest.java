@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static ru.practicum.ewm.service.util.TestConstants.USER_EMAIL;
-import static ru.practicum.ewm.service.util.TestConstants.USER_NAME;
-import static ru.practicum.ewm.service.util.TestData.*;
+import static ru.practicum.ewm.service.testutil.TestConstants.USER_EMAIL;
+import static ru.practicum.ewm.service.testutil.TestConstants.USER_NAME;
+import static ru.practicum.ewm.service.testutil.TestData.*;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class AdminUserServiceImplTest extends BaseIntegTest {

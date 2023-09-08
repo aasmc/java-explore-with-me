@@ -15,6 +15,7 @@ public class DateUtil {
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
     public LocalDateTime toDate(final String date) {
+        if (date == null) return null;
         return LocalDateTime.parse(date, FORMATTER);
     }
 
