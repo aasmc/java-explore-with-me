@@ -55,7 +55,6 @@ class AdminEventsServiceImplTest extends BaseIntegTest {
         Map<Long, Long> eventIdToViews = Map.of(event.getId(), EVENT_VIEWS);
         when(statisticsService.getEventsViews(any(), any(), any(), anyBoolean()))
                 .thenReturn(eventIdToViews);
-
         EventFullDto result = adminService.updateEvent(event.getId(), updateRequest);
         assertThat(result.getAnnotation()).isEqualTo(updateRequest.getAnnotation());
         assertThat(result.getCategory().getId()).isEqualTo(updateRequest.getCategory());
