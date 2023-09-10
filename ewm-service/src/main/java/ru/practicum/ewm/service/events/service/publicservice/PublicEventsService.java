@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.events.service;
+package ru.practicum.ewm.service.events.service.publicservice;
 
 import ru.practicum.ewm.service.events.dto.EventFullDto;
 import ru.practicum.ewm.service.events.dto.EventShortDto;

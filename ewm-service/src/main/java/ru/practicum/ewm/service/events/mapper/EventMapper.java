@@ -2,12 +2,13 @@ package ru.practicum.ewm.service.events.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.mapper.CategoriesMapper;
 import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.domain.EventShort;
-import ru.practicum.ewm.service.events.dto.EventFullDto;
-import ru.practicum.ewm.service.events.dto.EventShortDto;
-import ru.practicum.ewm.service.events.dto.LocationDto;
+import ru.practicum.ewm.service.events.domain.Location;
+import ru.practicum.ewm.service.events.dto.*;
+import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.dto.UserShortDto;
 import ru.practicum.ewm.service.usermanagement.mapper.UserMapper;
 
@@ -21,6 +22,26 @@ public class EventMapper {
 
     private final CategoriesMapper categoriesMapper;
     private final UserMapper userMapper;
+
+    public Event mapToDomain(NewEventDto dto, Category category, User user) {
+        return Event.builder()
+                .annotation(dto.getAnnotation())
+                .category(category)
+                .description(dto.getDescription())
+                .eventDate(dto.getEventDate())
+                .user(user)
+                .location(Location.builder()
+                        .lat(dto.getLocation().getLat())
+                        .lon(dto.getLocation().getLon())
+                        .build())
+                .paid(dto.isPaid())
+                .participationLimit(dto.getParticipantLimit())
+                .requestModeration(dto.isRequestModeration())
+                .title(dto.getTitle())
+                .state(EventState.PENDING)
+                .build();
+
+    }
 
     public List<EventFullDto> mapToFullDtoList(List<Event> events,
                                                Map<Long, Long> eventIdToViews,
@@ -82,6 +103,22 @@ public class EventMapper {
                         .id(event.getInitiatorId())
                         .name(event.getInitiatorName()).build())
                 .paid(event.isPaid())
+                .title(event.getTitle())
+                .views(views)
+                .build();
+    }
+
+    public EventShortDto mapToShortDto(Event event, Long confirmedRequests, Long views) {
+        return EventShortDto.builder()
+                .id(event.getId())
+                .annotation(event.getAnnotation())
+                .category(categoriesMapper.mapToDto(event.getCategory()))
+                .confirmedRequests(confirmedRequests)
+                .eventDate(event.getEventDate())
+                .initiator(UserShortDto.builder()
+                        .id(event.getUser().getId())
+                        .name(event.getUser().getName()).build())
+                .paid(event.getPaid())
                 .title(event.getTitle())
                 .views(views)
                 .build();

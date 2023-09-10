@@ -13,6 +13,8 @@ import ru.practicum.ewm.service.events.dto.EventFullDto;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
+import ru.practicum.ewm.service.events.service.adminservice.AdminEventsService;
+import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
 import ru.practicum.ewm.service.requests.repository.RequestsRepository;
 import ru.practicum.ewm.service.stats.common.util.DateUtil;
 import ru.practicum.ewm.service.usermanagement.domain.User;

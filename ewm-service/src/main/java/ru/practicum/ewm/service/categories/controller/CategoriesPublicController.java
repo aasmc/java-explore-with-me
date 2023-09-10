@@ -27,7 +27,7 @@ public class CategoriesPublicController {
         return publicService.getCategories(from, size);
     }
 
-    @GetMapping("/category/{catId}")
+    @GetMapping("/categories/{catId}")
     public CategoryDto getCategory(@PathVariable("catId") Long catId) {
         log.info("Received public request to GET category with ID={}", catId);
         return publicService.getCategory(catId);

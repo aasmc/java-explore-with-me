@@ -1,6 +1,5 @@
-package ru.practicum.ewm.service.events.service;
+package ru.practicum.ewm.service.events.service.adminservice;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.service.error.EwmServiceException;
@@ -10,11 +9,10 @@ import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.mapper.EventMapper;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
+import ru.practicum.ewm.service.events.service.BaseEventService;
+import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
 import ru.practicum.ewm.service.events.service.updater.admin.AdminEventUpdater;
-import ru.practicum.ewm.service.events.util.AdminEventUpdateValidator;
-import ru.practicum.ewm.service.events.util.DateHelper;
-import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
-import ru.practicum.ewm.service.requests.repository.RequestsRepository;
+import ru.practicum.ewm.service.util.DateHelper;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,16 +23,22 @@ import static ru.practicum.ewm.service.error.ErrorConstants.EVENT_NOT_FOUND_MSG;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
-public class AdminEventsServiceImpl implements AdminEventsService {
+public class AdminEventsServiceImpl extends BaseEventService implements AdminEventsService {
 
     private final EventsRepository eventsRepository;
-    private final RequestsRepository requestsRepository;
-    private final StatisticsService statisticsService;
-    private final AdminEventUpdateValidator updateValidator;
     private final AdminEventUpdater updater;
-    private final EventMapper mapper;
     private final DateHelper dateHelper;
+
+    public AdminEventsServiceImpl(EventsRepository eventsRepository,
+                                  StatisticsService statisticsService,
+                                  AdminEventUpdater updater,
+                                  EventMapper mapper,
+                                  DateHelper dateHelper) {
+        super(statisticsService, mapper);
+        this.eventsRepository = eventsRepository;
+        this.updater = updater;
+        this.dateHelper = dateHelper;
+    }
 
 
     @Override
@@ -63,18 +67,8 @@ public class AdminEventsServiceImpl implements AdminEventsService {
                     String msg = String.format(EVENT_NOT_FOUND_MSG, eventId);
                     return EwmServiceException.notFoundException(msg);
                 });
-        updateValidator.validateEventUpdate(event, dto);
         event = updater.updateEvent(event, dto);
-        Map<Long, Long> eventViews = getEventViews(List.of(eventId), event.getPublishedOn(), LocalDateTime.now());
-        Map<Long, Long> confirmedCount = getConfirmedCount(List.of(eventId));
-        return mapper.mapToFullDto(event, confirmedCount.get(eventId), eventViews.get(eventId));
+        return toEventFullDto(event);
     }
 
-    private Map<Long, Long> getEventViews(List<Long> eventsIds, LocalDateTime start, LocalDateTime end) {
-        return statisticsService.getEventsViews(eventsIds, start, end, false);
-    }
-
-    private Map<Long, Long> getConfirmedCount(List<Long> eventsIds) {
-        return requestsRepository.getEventIdCountByParticipationStatus(ParticipationStatus.CONFIRMED, eventsIds);
-    }
 }

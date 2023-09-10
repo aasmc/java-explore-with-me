@@ -20,6 +20,7 @@ import ru.practicum.ewm.service.usermanagement.dto.NewUserRequest;
 import ru.practicum.ewm.service.usermanagement.dto.UserShortDto;
 import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,7 +78,7 @@ public class TestData {
                 .annotation("New Annotation")
                 .category(1L)
                 .description("New Description")
-                .eventDate(EVENT_PUBLISHED_ON.minusDays(1))
+                .eventDate(EVENT_DATE.plusDays(1))
                 .location(LocationDto.builder().lat(4.4f).lon(5.5f).build())
                 .paid(false)
                 .participantLimit(10)
@@ -348,5 +349,27 @@ public class TestData {
         Event event = transientEvent(category, user, false);
         event.setPublishedOn(EVENT_PUBLISHED_ON);
         return eventsRepository.save(event);
+    }
+
+    public static Request mockRequest(long id, ParticipationStatus status, int eventParticipationLimit) {
+        return Request.builder()
+                .id(id)
+                .created(LocalDateTime.now())
+                .event(mockEvent(10, eventParticipationLimit, false))
+                .requester(mockEmptyUser())
+                .status(status)
+                .build();
+    }
+
+    public static Event mockEvent(long id, int participationLimit, boolean requestModeration) {
+        return Event.builder()
+                .id(id)
+                .requestModeration(requestModeration)
+                .participationLimit(participationLimit)
+                .build();
+    }
+
+    public static User mockEmptyUser() {
+        return User.builder().build();
     }
 }

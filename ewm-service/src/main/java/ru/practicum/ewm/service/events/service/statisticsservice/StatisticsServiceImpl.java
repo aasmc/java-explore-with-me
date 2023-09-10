@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.events.service;
+package ru.practicum.ewm.service.events.service.statisticsservice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -8,10 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.service.error.ErrorConstants;
 import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.util.EventUriConverter;
 import ru.practicum.ewm.service.events.util.StatisticsConverter;
+import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
+import ru.practicum.ewm.service.requests.repository.RequestsRepository;
 import ru.practicum.ewm.service.stats.client.StatisticsClient;
 import ru.practicum.ewm.service.stats.common.dto.StatResponse;
 
@@ -21,6 +24,7 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class StatisticsServiceImpl implements StatisticsService {
 
@@ -28,6 +32,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final StatisticsClient statisticsClient;
     private final EventUriConverter uriConverter;
     private final StatisticsConverter statisticsConverter;
+    private final RequestsRepository requestsRepository;
 
     @Override
     public List<StatResponse> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
@@ -58,7 +63,24 @@ public class StatisticsServiceImpl implements StatisticsService {
                                           LocalDateTime end,
                                           boolean unique) {
         Map<String, Long> uriToEventId = uriConverter.convertEventIdsToUris(eventIds);
-        List<StatResponse> statistics = getStatistics(start, end, List.copyOf(uriToEventId.keySet()), null);
+        List<StatResponse> statistics = getStatistics(start, end, List.copyOf(uriToEventId.keySet()), unique);
         return statisticsConverter.convertEventsStatistics(uriToEventId, statistics);
+    }
+
+    @Override
+    public Map<Long, Long> getConfirmedCount(List<Long> eventsIds) {
+        return requestsRepository.getEventIdCountByParticipationStatus(ParticipationStatus.CONFIRMED, eventsIds);
+    }
+
+    @Override
+    public Long getConfirmedCountForEvent(Long eventId) {
+        Map<Long, Long> confirmedCount = getConfirmedCount(List.of(eventId));
+        return confirmedCount.getOrDefault(eventId, 0L);
+    }
+
+    @Override
+    public Long getEventViews(Long eventId, LocalDateTime start, LocalDateTime end, boolean unique) {
+        Map<Long, Long> eventsViews = getEventsViews(List.of(eventId), start, end, unique);
+        return eventsViews.getOrDefault(eventId, 0L);
     }
 }

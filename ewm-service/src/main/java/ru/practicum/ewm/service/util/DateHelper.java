@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.events.util;
+package ru.practicum.ewm.service.util;
 
 
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import ru.practicum.ewm.service.stats.common.util.DateUtil;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class DateHelper {
 
             return events.stream()
                     .map(Event::getPublishedOn)
+                    .filter(Objects::nonNull)
                     .min(Comparator.naturalOrder())
                     .orElse(dateUtil.getDefaultDate());
         }
@@ -37,6 +39,7 @@ public class DateHelper {
 
             return events.stream()
                     .map(EventShort::getPublishDate)
+                    .filter(Objects::nonNull)
                     .min(Comparator.naturalOrder())
                     .orElse(dateUtil.getDefaultDate());
         }

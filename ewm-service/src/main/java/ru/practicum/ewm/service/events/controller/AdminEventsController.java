@@ -7,9 +7,10 @@ import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.dto.EventFullDto;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
-import ru.practicum.ewm.service.events.service.AdminEventsService;
+import ru.practicum.ewm.service.events.service.adminservice.AdminEventsService;
 import ru.practicum.ewm.service.stats.common.util.DateUtil;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class AdminEventsController {
 
     @PatchMapping("/admin/events/{eventId}")
     public EventFullDto updateEvent(@PathVariable("eventId") Long eventId,
-                                    @RequestBody UpdateEventAdminRequest dto) {
+                                    @RequestBody @Valid UpdateEventAdminRequest dto) {
         log.info("Received admin PATCH request to update event with ID={} to new event={}",
                 eventId, dto);
 
@@ -46,7 +47,7 @@ public class AdminEventsController {
     }
 
     private void checkDates(LocalDateTime start, LocalDateTime end) {
-        if (start.isAfter(LocalDateTime.now()) || start.isAfter(end)) {
+        if (start != null && end != null && (start.isAfter(LocalDateTime.now()) || start.isAfter(end))) {
             String msg = String.format("Invalid date parameters: %s, %s",
                     start.format(DateUtil.FORMATTER),
                     end.format(DateUtil.FORMATTER));

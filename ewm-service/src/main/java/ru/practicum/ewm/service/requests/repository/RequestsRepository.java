@@ -15,6 +15,14 @@ import java.util.stream.Collectors;
 
 public interface RequestsRepository extends JpaRepository<Request, Long> {
 
+    List<Request> findAllByRequester_Id(Long userId);
+
+    List<Request> findAllByRequester_Id_AndEvent_Id(Long userId, Long eventId);
+
+    List<Request> findAllByEvent_User_IdAndEvent_Id(Long userId, Long eventId);
+
+    List<Request> findAllByIdInAndEvent_User_IdAndEvent_Id(List<Long> requestIds, Long userId, Long eventId);
+
     @Query("select new ru.practicum.ewm.service.requests.domain.EventStatusCount(r.event.id, count(r.id)) " +
             "from Request r " +
             "where r.status = :status " +

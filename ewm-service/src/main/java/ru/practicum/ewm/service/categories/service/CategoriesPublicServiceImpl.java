@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.dto.CategoryDto;
 import ru.practicum.ewm.service.categories.mapper.CategoriesMapper;
@@ -16,6 +17,7 @@ import java.util.List;
 import static ru.practicum.ewm.service.error.ErrorConstants.CATEGORY_NOT_FOUND_MSG;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CategoriesPublicServiceImpl implements CategoriesPublicService {
 

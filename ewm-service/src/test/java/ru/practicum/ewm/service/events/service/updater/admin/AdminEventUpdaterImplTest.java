@@ -13,6 +13,7 @@ import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.dto.AdminEventStateAction;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
+import ru.practicum.ewm.service.events.util.AdminEventUpdateValidator;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 
 import java.util.Optional;
@@ -29,6 +30,8 @@ class AdminEventUpdaterImplTest {
 
     @Mock
     private CategoriesRepository categoriesRepository;
+    @Mock
+    private AdminEventUpdateValidator validator;
     @InjectMocks
     private AdminEventUpdaterImpl updater;
 

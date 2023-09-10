@@ -24,24 +24,22 @@ public class AdminEventUpdateValidator {
      * EwmServiceException with HttpStatus.CONFLICT.
      */
     public void validateEventUpdate(Event event, UpdateEventAdminRequest request) {
-        checkEventPublishDate(event, request.getEventDate());
+        checkEventPublishDate(request.getEventDate());
         checkPublish(request.getStateAction(), event);
         checkReject(request.getStateAction(), event);
     }
 
-    /**
-     * New event start date cannot be less than 1 hour before event publish date.
-     * If not the method throws EwmServiceException with HttpStatus.CONFLICT.
-     */
-    private void checkEventPublishDate(Event event, LocalDateTime newDate) {
-        if (newEventDateIncorrect(event.getPublishedOn(), newDate)) {
-            String msg = String.format(EVENT_WRONG_UPDATE_DATE_MSG, newDate.toString());
-            throw EwmServiceException.wrongConditions(msg);
+
+    private void checkEventPublishDate(LocalDateTime newDate) {
+        if (newDate != null && newEventDateIncorrect(newDate)) {
+            String msg = String.format(EVENT_WRONG_UPDATE_DATE_MSG, newDate);
+            throw EwmServiceException.incorrectParameters(msg);
         }
     }
 
-    private boolean newEventDateIncorrect(LocalDateTime publishDate, LocalDateTime newEventDate) {
-        return publishDate != null && newEventDate.plusHours(1).isAfter(publishDate);
+    private boolean newEventDateIncorrect(LocalDateTime newEventDate) {
+        LocalDateTime hourBefore  = LocalDateTime.now().minusHours(1);
+        return newEventDate.isBefore(hourBefore);
     }
 
     /**
@@ -49,7 +47,7 @@ public class AdminEventUpdateValidator {
      * If not the method throws EwmServiceException with HttpStatus.CONFLICT.
      */
     private void checkPublish(AdminEventStateAction action, Event event) {
-        if (publishNotAllowed(action, event.getState())) {
+        if (action != null && publishNotAllowed(action, event.getState())) {
             String msg = String.format(EVENT_WRONG_STATE_MSG, "publish", event.getState());
             throw EwmServiceException.wrongConditions(msg);
         }
@@ -63,7 +61,7 @@ public class AdminEventUpdateValidator {
      * Event can be rejected only if it has not been published yet.
      */
     private void checkReject(AdminEventStateAction action, Event event) {
-        if (cancelNotAllowed(action, event.getState())) {
+        if (action != null && cancelNotAllowed(action, event.getState())) {
             String msg = String.format(EVENT_WRONG_STATE_MSG, "cancel", event.getState());
             throw EwmServiceException.wrongConditions(msg);
         }

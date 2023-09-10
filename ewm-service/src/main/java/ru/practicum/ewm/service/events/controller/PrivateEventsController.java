@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.service.error.ErrorConstants;
+import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.dto.*;
+import ru.practicum.ewm.service.events.service.privateservice.PrivateEventRequestsService;
+import ru.practicum.ewm.service.events.service.privateservice.PrivateEventsService;
 import ru.practicum.ewm.service.requests.dto.ParticipationRequestDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -17,14 +21,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PrivateEventsController {
 
+    private final PrivateEventsService privateEventService;
+    private final PrivateEventRequestsService eventRequestsService;
+
     @GetMapping("/users/{userId}/events")
-    public List<EventShortDto> getEventsForUser(@PathVariable("userId") Long userId,
+    public List<EventShortDto> getEventsOfUser(@PathVariable("userId") Long userId,
                                                 @Valid @Min(0) @RequestParam(value = "from", defaultValue = "0") int from,
                                                 @Valid @Min(1) @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("Received private request to GET events of user with ID={}. From: {}, size: {}",
                 userId, from, size);
-        // TODO
-        return Collections.emptyList();
+        return privateEventService.getEventsOfUser(userId, from, size);
     }
 
     @PostMapping("/users/{userId}/events")
@@ -33,29 +39,25 @@ public class PrivateEventsController {
                                     @Valid @RequestBody NewEventDto dto) {
         log.info("Received private POST request to create event for user with ID={}," +
                 "new event: {}", userId, dto);
-        // TODO don't forget about eventDate in future and custom exception
-        // TODO дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента
-        return null;
+        checkNewEventDate(dto.getEventDate());
+        return privateEventService.createEvent(userId, dto);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
-    public EventFullDto getEventForUser(@PathVariable("userId") Long userId,
+    public EventFullDto getEventOfUser(@PathVariable("userId") Long userId,
                                         @PathVariable("eventId") Long eventId) {
         log.info("Received private request to GET event with ID={} for user with ID={}.",
                 eventId, userId);
-        // TODO
-        return null;
+        return privateEventService.getEventOfUser(userId, eventId);
     }
 
-    @PatchMapping("/users/{userId}/events{eventId}")
+    @PatchMapping("/users/{userId}/events/{eventId}")
     public EventFullDto updateEvent(@PathVariable("userId") Long userId,
                                     @PathVariable("eventId") Long eventId,
-                                    @RequestBody UpdateEventUserRequest dto) {
+                                    @RequestBody @Valid UpdateEventUserRequest dto) {
         log.info("Received private PATCH request to update event with ID={} of user with ID={}. To be updated to: {}",
                 eventId, userId, dto);
-        // TODO can update ONLY PENDING or CANCELED events! (expected status in case of error 409)
-        // TODO eventDate cannot be before LocalDateTime.now().plusHours(2). (expected status in case of error 409
-        return null;
+        return privateEventService.updateEventOfUser(userId, eventId, dto);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}/requests")
@@ -63,8 +65,7 @@ public class PrivateEventsController {
                                                                   @PathVariable("eventId") Long eventId) {
         log.info("Received private request to GET participation requests for event with ID={}, created by user with ID={}",
                 eventId, userId);
-        // TODO
-        return Collections.emptyList();
+        return eventRequestsService.getParticipationRequests(userId, eventId);
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
@@ -73,11 +74,14 @@ public class PrivateEventsController {
                                                                       @RequestBody EventRequestStatusUpdateRequest dto) {
         log.info("Received private PATCH request to update participation requests. EventId={}, UserId={}, Dto: {}",
                 eventId, userId, dto);
-        // TODO если для события лимит заявок равен 0 или отключена пре-модерация заявок, то подтверждение заявок не требуется
-        // TODO нельзя подтвердить заявку, если уже достигнут лимит по заявкам на данное событие (Ожидается код ошибки 409)
-        // TODO статус можно изменить только у заявок, находящихся в состоянии ожидания (Ожидается код ошибки 409)
-        // TODO если при подтверждении данной заявки, лимит заявок для события исчерпан, то все неподтверждённые заявки необходимо отклонить
+        return eventRequestsService.updateParticipationRequests(userId, eventId, dto);
+    }
 
-        return null;
+    private void checkNewEventDate(LocalDateTime eventDate) {
+        LocalDateTime thresholdDate = LocalDateTime.now().plusHours(2);
+        if (eventDate.isBefore(thresholdDate)) {
+            String msg = String.format(ErrorConstants.EVENT_NEW_DATE_WRONG_MSG, eventDate);
+            throw EwmServiceException.incorrectParameters(msg);
+        }
     }
 }

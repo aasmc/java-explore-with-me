@@ -120,22 +120,24 @@ public class CustomEventsRepositoryImpl implements CustomEventsRepository {
                                   Root<Event> root,
                                   List<Predicate> predicates,
                                   String text) {
-        String pattern = "%" + text + "%";
-        Predicate likePredicate = cb.or(
-                cb.like(
-                        cb.lower(
-                                root.get(Event_.annotation)
-                        ),
-                        pattern
-                ),
-                cb.like(
-                        cb.lower(
-                                root.get(Event_.description)
-                        ),
-                        pattern
-                )
-        );
-        predicates.add(likePredicate);
+        if (text != null) {
+            String pattern = "%" + text.toLowerCase() + "%";
+            Predicate likePredicate = cb.or(
+                    cb.like(
+                            cb.lower(
+                                    root.get(Event_.annotation)
+                            ),
+                            pattern
+                    ),
+                    cb.like(
+                            cb.lower(
+                                    root.get(Event_.description)
+                            ),
+                            pattern
+                    )
+            );
+            predicates.add(likePredicate);
+        }
     }
 
     private void addPublishedPredicate(CriteriaBuilder cb,

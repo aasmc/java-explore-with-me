@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.dto.NewUserRequest;
@@ -17,12 +18,14 @@ import java.util.List;
 import static ru.practicum.ewm.service.error.ErrorConstants.USER_NOT_FOUND_MSG;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AdminUserServiceImpl implements AdminUserService {
 
     private final UsersRepository usersRepository;
     private final UserMapper mapper;
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserDto> getAllUsers(List<Long> ids, int from, int size) {
         Pageable pageable = new OffsetBasedPageRequest(from, size);

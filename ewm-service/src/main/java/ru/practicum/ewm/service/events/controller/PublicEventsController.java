@@ -7,11 +7,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.dto.EventFullDto;
 import ru.practicum.ewm.service.events.dto.EventShortDto;
 import ru.practicum.ewm.service.events.dto.EventSort;
-import ru.practicum.ewm.service.events.service.PublicEventsService;
-import ru.practicum.ewm.service.events.service.StatisticsService;
+import ru.practicum.ewm.service.events.service.publicservice.PublicEventsService;
+import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
 import ru.practicum.ewm.service.stats.common.util.DateUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,25 +42,33 @@ public class PublicEventsController {
                                             @RequestParam(value = "size", defaultValue = "10") int size,
                                             HttpServletRequest request) {
         log.info("Received public request to GET all events");
+        saveStatistics(request);
         LocalDateTime start = dateUtil.toDate(rangeStart);
         LocalDateTime end = dateUtil.toDate(rangeEnd);
-        List<EventShortDto> result = publicEventsService
+        checkDates(start, end);
+        return publicEventsService
                 .getAllEvents(text, categories, paid, start, end, onlyAvailable, sort, from, size);
-        saveStatistics(request);
-        return result;
     }
 
     @GetMapping("/events/{id}")
     public EventFullDto getEvent(@PathVariable("id") Long id, HttpServletRequest request) {
         log.info("Received public request to GET event by id={}", id);
-        EventFullDto event = publicEventsService.getEvent(id);
         saveStatistics(request);
-        return event;
+        return publicEventsService.getEvent(id);
     }
 
     private void saveStatistics(HttpServletRequest request) {
         String ip = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
         statisticsService.saveStatistics(appName, endpoint, ip, LocalDateTime.now());
+    }
+
+    private void checkDates(LocalDateTime start, LocalDateTime end) {
+        if (start != null && end != null && (start.isAfter(LocalDateTime.now()) || start.isAfter(end))) {
+            String msg = String.format("Invalid date parameters: %s, %s",
+                    start.format(DateUtil.FORMATTER),
+                    end.format(DateUtil.FORMATTER));
+            throw EwmServiceException.incorrectParameters(msg);
+        }
     }
 }

@@ -11,7 +11,8 @@ import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.dto.EventShortDto;
 import ru.practicum.ewm.service.events.dto.EventSort;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
-import ru.practicum.ewm.service.requests.repository.RequestsRepository;
+import ru.practicum.ewm.service.events.service.publicservice.PublicEventsService;
+import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
 
@@ -28,11 +29,9 @@ import static ru.practicum.ewm.service.testutil.TestData.*;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class PublicEventsServiceImplTest extends BaseIntegTest {
-    // in test we create 10 events and for each event we create 10 confirmed requests
     private static final Long CONFIRMED_EVENTS_COUNT = 10L;
     private static final Long EVENT_VIEWS = 100L;
     private final PublicEventsService publicService;
-    private final RequestsRepository requestsRepository;
     private final EventsRepository eventsRepository;
     private final UsersRepository usersRepository;
     private final CategoriesRepository categoriesRepository;
@@ -46,7 +45,8 @@ class PublicEventsServiceImplTest extends BaseIntegTest {
         List<Long> categoryIds = categories.stream().map(Category::getId).sorted().collect(Collectors.toList());
         List<Event> events = getTenSavedPublishedEvents(categories, users, eventsRepository, 11);
         List<Long> eventIds = events.stream().map(Event::getId).sorted().collect(Collectors.toList());
-        save100RequestsForEvents(events, requestsRepository, usersRepository);
+        Map<Long, Long> eventIdToConfirmed = events.stream()
+                .collect(Collectors.toMap(Event::getId, e -> CONFIRMED_EVENTS_COUNT));
 
         LocalDateTime start = events.stream().map(Event::getPublishedOn)
                 .min(Comparator.naturalOrder()).orElse(LocalDateTime.now());
@@ -57,8 +57,10 @@ class PublicEventsServiceImplTest extends BaseIntegTest {
         events.forEach(e -> {
             eventIdToViews.put(e.getId(), EVENT_VIEWS);
         });
-        when(statisticsService.getEventsViews(eventIds, start, end, false))
+        when(statisticsService.getEventsViews(eventIds, start, end, true))
                 .thenReturn(eventIdToViews);
+        when(statisticsService.getConfirmedCount(eventIds))
+                .thenReturn(eventIdToConfirmed);
 
         List<EventShortDto> result = publicService.getAllEvents("event",
                 categoryIds,
@@ -82,7 +84,8 @@ class PublicEventsServiceImplTest extends BaseIntegTest {
         List<Long> categoryIds = categories.stream().map(Category::getId).sorted().collect(Collectors.toList());
         List<Event> events = getTenSavedPublishedEvents(categories, users, eventsRepository);
         List<Long> eventIds = events.stream().map(Event::getId).sorted().collect(Collectors.toList());
-        save100RequestsForEvents(events, requestsRepository, usersRepository);
+        Map<Long, Long> eventIdToConfirmed = events.stream()
+                .collect(Collectors.toMap(Event::getId, e -> CONFIRMED_EVENTS_COUNT));
 
         LocalDateTime start = events.stream().map(Event::getPublishedOn)
                 .min(Comparator.naturalOrder()).orElse(LocalDateTime.now());
@@ -93,8 +96,10 @@ class PublicEventsServiceImplTest extends BaseIntegTest {
         events.forEach(e -> {
             eventIdToViews.put(e.getId(), EVENT_VIEWS);
         });
-        when(statisticsService.getEventsViews(eventIds, start, end, false))
+        when(statisticsService.getEventsViews(eventIds, start, end, true))
                 .thenReturn(eventIdToViews);
+        when(statisticsService.getConfirmedCount(eventIds))
+                .thenReturn(eventIdToConfirmed);
 
         List<EventShortDto> result = publicService.getAllEvents("event",
                 categoryIds,

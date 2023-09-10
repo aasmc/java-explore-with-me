@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.events.service;
+package ru.practicum.ewm.service.events.service.statisticsservice;
 
 import ru.practicum.ewm.service.stats.common.dto.StatResponse;
 
@@ -21,4 +21,10 @@ public interface StatisticsService {
                                    LocalDateTime start,
                                    LocalDateTime end,
                                    boolean unique);
+
+    Map<Long, Long> getConfirmedCount(List<Long> eventsIds);
+
+    Long getConfirmedCountForEvent(Long eventId);
+
+    Long getEventViews(Long eventId, LocalDateTime start, LocalDateTime end, boolean unique);
 }

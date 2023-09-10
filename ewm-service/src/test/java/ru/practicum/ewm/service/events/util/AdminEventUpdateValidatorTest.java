@@ -10,6 +10,7 @@ import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static ru.practicum.ewm.service.error.ErrorConstants.BAD_REQUEST_REASON;
 import static ru.practicum.ewm.service.error.ErrorConstants.CONDITIONS_NOT_MET_REASON;
 import static ru.practicum.ewm.service.testutil.TestConstants.EVENT_PUBLISHED_ON;
 import static ru.practicum.ewm.service.testutil.TestData.defaultPendingEvent;
@@ -67,7 +68,7 @@ class AdminEventUpdateValidatorTest {
 
         EwmServiceException ex = assertThrows(EwmServiceException.class,
                 () -> validator.validateEventUpdate(event, dto));
-        assertThat(ex.getReason()).isEqualTo(CONDITIONS_NOT_MET_REASON);
+        assertThat(ex.getReason()).isEqualTo(BAD_REQUEST_REASON);
     }
 
 }

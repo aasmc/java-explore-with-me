@@ -1,6 +1,5 @@
-package ru.practicum.ewm.service.events.service;
+package ru.practicum.ewm.service.events.service.publicservice;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.service.error.EwmServiceException;
@@ -12,9 +11,9 @@ import ru.practicum.ewm.service.events.dto.EventSort;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.events.mapper.EventMapper;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
-import ru.practicum.ewm.service.events.util.DateHelper;
-import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
-import ru.practicum.ewm.service.requests.repository.RequestsRepository;
+import ru.practicum.ewm.service.events.service.BaseEventService;
+import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
+import ru.practicum.ewm.service.util.DateHelper;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -25,15 +24,20 @@ import java.util.stream.Collectors;
 import static ru.practicum.ewm.service.error.ErrorConstants.EVENT_NOT_FOUND_MSG;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
-public class PublicEventsServiceImpl implements PublicEventsService {
+public class PublicEventsServiceImpl extends BaseEventService implements PublicEventsService {
 
     private final EventsRepository eventsRepository;
-    private final RequestsRepository requestsRepository;
-    private final StatisticsService statisticsService;
     private final DateHelper dateHelper;
-    private final EventMapper mapper;
+
+    public PublicEventsServiceImpl(EventsRepository eventsRepository,
+                                   StatisticsService statisticsService,
+                                   DateHelper dateHelper,
+                                   EventMapper mapper) {
+        super(statisticsService, mapper);
+        this.eventsRepository = eventsRepository;
+        this.dateHelper = dateHelper;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -70,19 +74,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
                     String msg = String.format(EVENT_NOT_FOUND_MSG, eventId);
                     return EwmServiceException.notFoundException(msg);
                 });
-        Map<Long, Long> eventViews = getEventViews(List.of(eventId), event.getPublishedOn(), LocalDateTime.now());
-        Map<Long, Long> confirmedCount = getConfirmedCount(List.of(eventId));
-        return mapper.mapToFullDto(event,
-                confirmedCount.getOrDefault(eventId, 0L),
-                eventViews.getOrDefault(eventId, 0L));
-    }
-
-    private Map<Long, Long> getEventViews(List<Long> eventsIds, LocalDateTime start, LocalDateTime end) {
-        return statisticsService.getEventsViews(eventsIds, start, end, false);
-    }
-
-    private Map<Long, Long> getConfirmedCount(List<Long> eventsIds) {
-        return requestsRepository.getEventIdCountByParticipationStatus(ParticipationStatus.CONFIRMED, eventsIds);
+        return toEventFullDto(event);
     }
 
     private List<EventShort> filterOnlyAvailable(boolean onlyAvailable, List<EventShort> events, Map<Long, Long> confirmedEventIdToCount) {

@@ -3,6 +3,7 @@ package ru.practicum.ewm.service.events.domain;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.ewm.service.categories.domain.Category;
+import ru.practicum.ewm.service.compilations.domain.Compilation;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 
@@ -51,6 +52,9 @@ public class Event {
     private EventState state;
     @Column(name = "title", nullable = false)
     private String title;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "compilation_id")
+    private Compilation compilation;
 
     @Override
     public boolean equals(Object obj) {
