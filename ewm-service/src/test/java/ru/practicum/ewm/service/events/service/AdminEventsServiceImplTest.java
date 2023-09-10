@@ -44,27 +44,6 @@ class AdminEventsServiceImplTest extends BaseIntegTest {
     @MockBean
     private StatisticsService statisticsService;
 
-//    @Test
-//    void updateEvent_updatesEvent() {
-//        Event event = getOneSavedEvent(eventsRepository, usersRepository, categoriesRepository);
-//        UpdateEventAdminRequest updateRequest = updateEventAdminRequestPublishAction();
-//        save100RequestsForEvents(List.of(event), requestsRepository, usersRepository);
-//        Map<Long, Long> eventIdToViews = Map.of(event.getId(), EVENT_VIEWS);
-//        when(statisticsService.getEventsViews(any(), any(), any(), anyBoolean()))
-//                .thenReturn(eventIdToViews);
-//        EventFullDto result = adminService.updateEvent(event.getId(), updateRequest);
-//        assertThat(result.getAnnotation()).isEqualTo(updateRequest.getAnnotation());
-//        assertThat(result.getCategory().getId()).isEqualTo(updateRequest.getCategory());
-//        assertThat(result.getDescription()).isEqualTo(updateRequest.getDescription());
-//        assertThat(result.getEventDate()).isEqualTo(updateRequest.getEventDate());
-//        assertThat(result.getLocation()).isEqualTo(updateRequest.getLocation());
-//        assertThat(result.isPaid()).isEqualTo(updateRequest.getPaid());
-//        assertThat(result.getParticipantLimit()).isEqualTo(updateRequest.getParticipantLimit());
-//        assertThat(result.isRequestModeration()).isEqualTo(updateRequest.getRequestModeration());
-//        assertThat(result.getTitle()).isEqualTo(updateRequest.getTitle());
-//        assertThat(result.getState()).isEqualTo(EventState.PUBLISHED);
-//    }
-
     @Test
     void getAllEvents_returnsCorrectList() {
         List<User> users = getTenSavedUsers(usersRepository);
