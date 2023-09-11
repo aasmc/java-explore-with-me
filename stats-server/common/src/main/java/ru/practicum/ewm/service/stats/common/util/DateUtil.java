@@ -15,6 +15,7 @@ public class DateUtil {
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
     public LocalDateTime toDate(final String date) {
+        if (date == null) return null;
         return LocalDateTime.parse(date, FORMATTER);
     }
 
@@ -30,5 +31,9 @@ public class DateUtil {
     public LocalDateTime decodeFromString(String encodedDate) {
         String decoded = URLDecoder.decode(encodedDate, StandardCharsets.UTF_8);
         return LocalDateTime.parse(decoded, FORMATTER);
+    }
+
+    public LocalDateTime getDefaultDate() {
+        return LocalDateTime.now();
     }
 }
