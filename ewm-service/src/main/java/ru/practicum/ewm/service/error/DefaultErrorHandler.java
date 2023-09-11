@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service.error;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,8 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
-import static ru.practicum.ewm.service.error.ErrorConstants.BAD_REQUEST_REASON;
-import static ru.practicum.ewm.service.error.ErrorConstants.UNKNOWN_REASON;
+import static ru.practicum.ewm.service.error.ErrorConstants.*;
 
 @Slf4j
 @RestControllerAdvice
@@ -27,6 +27,18 @@ public class DefaultErrorHandler {
                 .timestamp(ex.getTimestamp())
                 .build();
         return new ResponseEntity<>(error, ex.getStatus());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiError> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        log.error("Received ApiError with message: {}", ex.getMessage());
+        ApiError error = ApiError.builder()
+                .message(ex.getMessage())
+                .reason(DATA_INTEGRITY_VIOLATION_REASON)
+                .status(HttpStatus.CONFLICT.toString())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

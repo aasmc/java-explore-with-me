@@ -1,15 +1,13 @@
 package ru.practicum.ewm.service.compilations.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.service.compilations.domain.Compilation;
 import ru.practicum.ewm.service.compilations.dto.CompilationDto;
-import ru.practicum.ewm.service.compilations.mapper.CompilationsMapper;
 import ru.practicum.ewm.service.compilations.repository.CompilationsRepository;
 import ru.practicum.ewm.service.error.EwmServiceException;
-import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
-import ru.practicum.ewm.service.util.DateHelper;
 import ru.practicum.ewm.service.util.OffsetBasedPageRequest;
 
 import java.util.List;
@@ -18,26 +16,19 @@ import static ru.practicum.ewm.service.error.ErrorConstants.COMPILATION_NOT_FOUN
 
 @Service
 @Transactional
-public class CompilationsPublicServiceImpl extends BaseCompilationService implements CompilationsPublicService {
+@RequiredArgsConstructor
+public class CompilationsPublicServiceImpl implements CompilationsPublicService {
 
-
-    protected CompilationsPublicServiceImpl(StatisticsService statisticsService,
-                                            CompilationsMapper mapper,
-                                            CompilationsRepository compilationsRepository,
-                                            DateHelper dateHelper) {
-        super(statisticsService, mapper, compilationsRepository, dateHelper);
-    }
+    private final CommonCompilationService commonService;
+    private final CompilationsRepository compilationsRepository;
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
         Pageable pageable = new OffsetBasedPageRequest(from, size);
-        List<Compilation> compilations;
-        if (null == pinned) {
-            compilations = compilationsRepository.findAll(pageable).getContent();
-        } else {
-            compilations = compilationsRepository.findAllByPinned(pinned, pageable);
-        }
-        return toCompilationDtoList(compilations);
+        List<Compilation> compilations = null == pinned ?
+                compilationsRepository.findAll(pageable).getContent() :
+                compilationsRepository.findAllByPinned(pinned, pageable);
+        return commonService.toCompilationDtoList(compilations);
     }
 
     @Override
@@ -47,6 +38,6 @@ public class CompilationsPublicServiceImpl extends BaseCompilationService implem
                     String msg = String.format(COMPILATION_NOT_FOUND_MSG, compId);
                     return EwmServiceException.notFoundException(msg);
                 });
-        return toCompilationDto(compilation);
+        return commonService.toCompilationDto(compilation);
     }
 }

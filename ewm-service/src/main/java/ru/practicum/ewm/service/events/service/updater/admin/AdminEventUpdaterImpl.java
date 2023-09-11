@@ -12,7 +12,7 @@ import ru.practicum.ewm.service.events.util.AdminEventUpdateValidator;
 import java.time.LocalDateTime;
 
 @Component
-public class AdminEventUpdaterImpl extends BaseUpdater implements AdminEventUpdater {
+public class AdminEventUpdaterImpl extends BaseUpdater<UpdateEventAdminRequest> implements AdminEventUpdater {
 
     private final AdminEventUpdateValidator validator;
 
@@ -24,16 +24,8 @@ public class AdminEventUpdaterImpl extends BaseUpdater implements AdminEventUpda
     @Override
     public Event updateEvent(Event event, UpdateEventAdminRequest update) {
         validator.validateEventUpdate(event, update);
-        updateAnnotation(event, update.getAnnotation());
-        updateCategory(event, update.getCategory());
-        updateDescription(event, update.getDescription());
-        updateEventDate(event, update.getEventDate());
-        updateLocation(event, update.getLocation());
-        updatePaid(event, update.getPaid());
-        updateParticipationLimit(event, update.getParticipantLimit());
-        updateRequestModeration(event, update.getRequestModeration());
+        updateEventRequest(event, update);
         updateState(event, update.getStateAction());
-        updateTitle(event, update.getTitle());
         return event;
     }
 

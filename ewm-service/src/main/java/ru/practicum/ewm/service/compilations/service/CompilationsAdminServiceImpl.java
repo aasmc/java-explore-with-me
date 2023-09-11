@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.compilations.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.service.compilations.domain.Compilation;
@@ -12,9 +13,8 @@ import ru.practicum.ewm.service.compilations.service.updater.CompilationUpdater;
 import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
-import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
-import ru.practicum.ewm.service.util.DateHelper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -23,21 +23,14 @@ import static ru.practicum.ewm.service.error.ErrorConstants.COMPILATION_NOT_FOUN
 
 @Service
 @Transactional
-public class CompilationsAdminServiceImpl extends BaseCompilationService implements CompilationsAdminService {
+@RequiredArgsConstructor
+public class CompilationsAdminServiceImpl implements CompilationsAdminService {
 
     private final CompilationUpdater updater;
     private final EventsRepository eventsRepository;
-
-    protected CompilationsAdminServiceImpl(StatisticsService statisticsService,
-                                           CompilationsMapper mapper,
-                                           CompilationsRepository compilationsRepository,
-                                           DateHelper dateHelper,
-                                           CompilationUpdater updater,
-                                           EventsRepository eventsRepository) {
-        super(statisticsService, mapper, compilationsRepository, dateHelper);
-        this.updater = updater;
-        this.eventsRepository = eventsRepository;
-    }
+    private final CompilationsRepository compilationsRepository;
+    private final CommonCompilationService commonService;
+    private final CompilationsMapper mapper;
 
     @Override
     public CompilationDto createCompilation(NewCompilationDto dto) {
@@ -45,7 +38,7 @@ public class CompilationsAdminServiceImpl extends BaseCompilationService impleme
         Compilation compilation = mapper.mapToDomain(dto, events);
         Compilation saved = compilationsRepository.save(compilation);
         setCompilationToEvents(compilation, events);
-        return toCompilationDto(saved);
+        return commonService.toCompilationDto(saved);
     }
 
     @Override
@@ -65,14 +58,14 @@ public class CompilationsAdminServiceImpl extends BaseCompilationService impleme
                     String msg = String.format(COMPILATION_NOT_FOUND_MSG, compId);
                     return EwmServiceException.notFoundException(msg);
                 });
-        Set<Event> events = getCompilationEvents(dto.getEvents());
+        Set<Event> events = dto.getEvents() == null ? null : getCompilationEvents(dto.getEvents());
         Compilation updated = updater.updateCompilation(compilation, dto, events);
         updated = compilationsRepository.save(updated);
-        return toCompilationDto(updated);
+        return commonService.toCompilationDto(updated);
     }
 
     private Set<Event> getCompilationEvents(Set<Long> eventIds) {
-        Set<Event> events = null;
+        Set<Event> events = Collections.emptySet();
         if (null != eventIds && !eventIds.isEmpty()) {
             checkAllEventsExist(eventIds);
             events = eventsRepository.findAllByIdIn(List.copyOf(eventIds));

@@ -4,13 +4,15 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.ewm.service.events.dto.EventShortDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Builder
 public class CompilationDto {
     private Long id;
-    private List<EventShortDto> events;
+    @Builder.Default
+    private List<EventShortDto> events = new ArrayList<>();
     private Boolean pinned;
     private String title;
 }

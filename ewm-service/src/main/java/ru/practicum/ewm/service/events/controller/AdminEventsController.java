@@ -3,12 +3,11 @@ package ru.practicum.ewm.service.events.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.dto.EventFullDto;
 import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.service.adminservice.AdminEventsService;
-import ru.practicum.ewm.service.stats.common.util.DateUtil;
+import ru.practicum.ewm.service.util.DateHelper;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -19,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminEventsController {
 
-    private final DateUtil dateUtil;
+    private final DateHelper dateHelper;
     private final AdminEventsService adminEventsService;
 
     @GetMapping("/admin/events")
@@ -31,9 +30,9 @@ public class AdminEventsController {
                                            @RequestParam(value = "from", defaultValue = "0") int from,
                                            @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("Received admin request to GET all events.");
-        LocalDateTime start = dateUtil.toDate(rangeStart);
-        LocalDateTime end = dateUtil.toDate(rangeEnd);
-        checkDates(start, end);
+        LocalDateTime start = dateHelper.toDate(rangeStart);
+        LocalDateTime end = dateHelper.toDate(rangeEnd);
+        dateHelper.checkDates(start, end);
         return adminEventsService.getAllEvents(users, states, categories, start, end, from, size);
     }
 
@@ -45,14 +44,4 @@ public class AdminEventsController {
 
         return adminEventsService.updateEvent(eventId, dto);
     }
-
-    private void checkDates(LocalDateTime start, LocalDateTime end) {
-        if (start != null && end != null && (start.isAfter(LocalDateTime.now()) || start.isAfter(end))) {
-            String msg = String.format("Invalid date parameters: %s, %s",
-                    start.format(DateUtil.FORMATTER),
-                    end.format(DateUtil.FORMATTER));
-            throw EwmServiceException.incorrectParameters(msg);
-        }
-    }
-
 }

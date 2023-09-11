@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class UpdateEventAdminRequest {
+public class UpdateEventAdminRequest implements UpdateEventRequest {
     @Size(min = 20, max = 2000)
     private String annotation;
     private Long category;

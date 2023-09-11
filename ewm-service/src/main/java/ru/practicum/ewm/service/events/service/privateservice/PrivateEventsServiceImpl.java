@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.events.service.privateservice;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +15,7 @@ import ru.practicum.ewm.service.events.dto.NewEventDto;
 import ru.practicum.ewm.service.events.dto.UpdateEventUserRequest;
 import ru.practicum.ewm.service.events.mapper.EventMapper;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
-import ru.practicum.ewm.service.events.service.BaseEventService;
-import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
+import ru.practicum.ewm.service.events.service.CommonEventsService;
 import ru.practicum.ewm.service.events.service.updater.user.UserEventUpdater;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
@@ -31,28 +31,17 @@ import static ru.practicum.ewm.service.error.ErrorConstants.*;
 
 @Service
 @Transactional
-public class PrivateEventsServiceImpl extends BaseEventService implements PrivateEventsService {
+@RequiredArgsConstructor
+public class PrivateEventsServiceImpl implements PrivateEventsService {
 
     private final EventsRepository eventsRepository;
     private final DateHelper dateHelper;
     private final CategoriesRepository categoriesRepository;
     private final UsersRepository usersRepository;
     private final UserEventUpdater updater;
+    private final CommonEventsService commonEventsService;
+    private final EventMapper mapper;
 
-    public PrivateEventsServiceImpl(EventsRepository eventsRepository,
-                                    EventMapper mapper,
-                                    StatisticsService statisticsService,
-                                    DateHelper dateHelper,
-                                    CategoriesRepository categoriesRepository,
-                                    UsersRepository usersRepository,
-                                    UserEventUpdater updater) {
-        super(statisticsService, mapper);
-        this.eventsRepository = eventsRepository;
-        this.dateHelper = dateHelper;
-        this.categoriesRepository = categoriesRepository;
-        this.usersRepository = usersRepository;
-        this.updater = updater;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -62,8 +51,8 @@ public class PrivateEventsServiceImpl extends BaseEventService implements Privat
         LocalDateTime start = dateHelper.getEventShortStartDateOrComputeIfNull(null, events);
         LocalDateTime end = dateHelper.getEndDateOrComputeIfNull(null);
         List<Long> eventIds = events.stream().map(EventShort::getId).collect(Collectors.toList());
-        Map<Long, Long> eventViews = getEventViews(eventIds, start, end);
-        Map<Long, Long> confirmedCount = getConfirmedCount(eventIds);
+        Map<Long, Long> eventViews = commonEventsService.getEventViews(eventIds, start, end);
+        Map<Long, Long> confirmedCount = commonEventsService.getConfirmedCount(eventIds);
         return mapper.mapToShortDtoList(events, eventViews, confirmedCount);
     }
 
@@ -81,7 +70,7 @@ public class PrivateEventsServiceImpl extends BaseEventService implements Privat
                 });
         Event event = mapper.mapToDomain(dto, category, user);
         event = eventsRepository.save(event);
-        return toEventFullDto(event);
+        return commonEventsService.toEventFullDto(event);
     }
 
     @Override
@@ -92,7 +81,7 @@ public class PrivateEventsServiceImpl extends BaseEventService implements Privat
                     String msg = String.format(EVENT_NOT_FOUND_MSG, eventId);
                     return EwmServiceException.notFoundException(msg);
                 });
-        return toEventFullDto(event);
+        return commonEventsService.toEventFullDto(event);
     }
 
     @Override
@@ -105,7 +94,7 @@ public class PrivateEventsServiceImpl extends BaseEventService implements Privat
                 });
         Event updated = updater.updateEvent(event, dto);
         eventsRepository.saveAndFlush(updated);
-        return toEventFullDto(updated);
+        return commonEventsService.toEventFullDto(updated);
     }
 
     private void checkUserExists(Long userId) {

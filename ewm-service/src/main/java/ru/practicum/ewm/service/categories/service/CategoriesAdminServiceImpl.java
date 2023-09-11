@@ -36,17 +36,12 @@ public class CategoriesAdminServiceImpl implements CategoriesAdminService {
 
     @Override
     public void deleteCategory(Long catId) {
-        try {
-            Optional<Category> byId = categoriesRepository.findById(catId);
-            if (byId.isEmpty()) {
-                String msg = String.format(CATEGORY_NOT_FOUND_MSG, catId);
-                throw EwmServiceException.notFoundException(msg);
-            }
-            categoriesRepository.delete(byId.get());
-            categoriesRepository.flush();
-        } catch (DataIntegrityViolationException ex) {
-            throw EwmServiceException.dataIntegrityException(ex.getMessage());
+        Optional<Category> byId = categoriesRepository.findById(catId);
+        if (byId.isEmpty()) {
+            String msg = String.format(CATEGORY_NOT_FOUND_MSG, catId);
+            throw EwmServiceException.notFoundException(msg);
         }
+        categoriesRepository.delete(byId.get());
     }
 
     @Override

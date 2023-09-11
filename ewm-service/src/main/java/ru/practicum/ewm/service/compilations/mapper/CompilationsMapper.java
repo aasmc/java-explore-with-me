@@ -32,7 +32,7 @@ public class CompilationsMapper {
                                    Map<Long, Long> eventIdToViews,
                                    Map<Long, Long> eventIdToConfirmed) {
         List<EventShortDto> events = Collections.emptyList();
-        if (compilation.getEvents() != null && !compilation.getEvents().isEmpty()) {
+        if (!compilation.getEvents().isEmpty()) {
             events = compilation.getEvents().stream().map(e -> {
                 Long views = eventIdToViews.getOrDefault(e.getId(), 0L);
                 Long confirmed = eventIdToConfirmed.getOrDefault(e.getId(), 0L);

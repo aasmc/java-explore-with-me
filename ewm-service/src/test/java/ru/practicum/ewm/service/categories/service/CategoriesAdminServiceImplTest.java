@@ -3,6 +3,7 @@ package ru.practicum.ewm.service.categories.service;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import ru.practicum.ewm.service.BaseIntegTest;
 import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.dto.CategoryDto;
@@ -85,9 +86,8 @@ class CategoriesAdminServiceImplTest extends BaseIntegTest {
                 user.getEmail());
         eventsRepository.saveAndFlush(transientEvent);
 
-        EwmServiceException ex = assertThrows(EwmServiceException.class, () ->
+        assertThrows(DataIntegrityViolationException.class, () ->
                 service.deleteCategory(category.getId()));
-        assertThat(ex.getReason()).isEqualTo(DATA_INTEGRITY_VIOLATION_REASON);
 
     }
 

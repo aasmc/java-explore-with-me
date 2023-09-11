@@ -1,9 +1,10 @@
 package ru.practicum.ewm.service.compilations.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.practicum.ewm.service.compilations.domain.Compilation;
 import ru.practicum.ewm.service.compilations.dto.CompilationDto;
 import ru.practicum.ewm.service.compilations.mapper.CompilationsMapper;
-import ru.practicum.ewm.service.compilations.repository.CompilationsRepository;
 import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
 import ru.practicum.ewm.service.util.DateHelper;
@@ -12,32 +13,17 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class BaseCompilationService {
+@Service
+@RequiredArgsConstructor
+public class CommonCompilationService {
 
-    protected final StatisticsService statisticsService;
-    protected final CompilationsMapper mapper;
-    protected final CompilationsRepository compilationsRepository;
-    protected final DateHelper dateHelper;
-
-    protected BaseCompilationService(StatisticsService statisticsService,
-                                     CompilationsMapper mapper,
-                                     CompilationsRepository compilationsRepository,
-                                     DateHelper dateHelper) {
-        this.statisticsService = statisticsService;
-        this.mapper = mapper;
-        this.compilationsRepository = compilationsRepository;
-        this.dateHelper = dateHelper;
-    }
+    private final StatisticsService statisticsService;
+    private final CompilationsMapper mapper;
+    private final DateHelper dateHelper;
 
     protected List<CompilationDto> toCompilationDtoList(List<Compilation> savedCompilations) {
-        List<Event> events = savedCompilations.stream().flatMap(c -> {
-                    Set<Event> cEvents = c.getEvents();
-                    if (cEvents == null) {
-                        return null;
-                    } else {
-                        return cEvents.stream();
-                    }
-                })
+        List<Event> events = savedCompilations.stream()
+                .flatMap(c -> c.getEvents().stream())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         List<Long> eventIds = events.stream()
@@ -49,7 +35,7 @@ public abstract class BaseCompilationService {
     }
 
     protected CompilationDto toCompilationDto(Compilation saved) {
-        if (saved.getEvents() == null || saved.getEvents().isEmpty()) {
+        if (saved.getEvents().isEmpty()) {
             return mapper.mapToDto(saved, Collections.emptyMap(), Collections.emptyMap());
         }
         List<Long> eventIds = saved.getEvents().stream()

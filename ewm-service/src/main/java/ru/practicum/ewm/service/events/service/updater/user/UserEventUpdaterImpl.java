@@ -10,7 +10,7 @@ import ru.practicum.ewm.service.events.service.updater.BaseUpdater;
 import ru.practicum.ewm.service.events.util.UserEventValidator;
 
 @Component
-public class UserEventUpdaterImpl extends BaseUpdater implements UserEventUpdater {
+public class UserEventUpdaterImpl extends BaseUpdater<UpdateEventUserRequest> implements UserEventUpdater {
 
     private final UserEventValidator validator;
 
@@ -22,16 +22,8 @@ public class UserEventUpdaterImpl extends BaseUpdater implements UserEventUpdate
     @Override
     public Event updateEvent(Event event, UpdateEventUserRequest update) {
         validator.validateUpdate(event, update);
-        updateAnnotation(event, update.getAnnotation());
-        updateCategory(event, update.getCategory());
-        updateDescription(event, update.getDescription());
-        updateEventDate(event, update.getEventDate());
-        updateLocation(event, update.getLocation());
-        updatePaid(event, update.getPaid());
-        updateParticipationLimit(event, update.getParticipantLimit());
-        updateRequestModeration(event, update.getRequestModeration());
+        updateEventRequest(event, update);
         updateState(event, update.getStateAction());
-        updateTitle(event, update.getTitle());
         return event;
     }
 

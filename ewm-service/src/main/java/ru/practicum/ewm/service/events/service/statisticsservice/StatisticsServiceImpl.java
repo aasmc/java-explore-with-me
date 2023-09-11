@@ -36,9 +36,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public List<StatResponse> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        ResponseEntity<Object> response = statisticsClient.getStatistics(start, end, uris, unique);
-        Object body = response.getBody();
         try {
+            ResponseEntity<Object> response = statisticsClient.getStatistics(start, end, uris, unique);
+            Object body = response.getBody();
             String bodyStr = objectMapper.writeValueAsString(body);
             List<StatResponse> statistics = objectMapper.readValue(bodyStr, new TypeReference<>() {});
             log.info("Retrieved statistics from Stat Server: {}", statistics);

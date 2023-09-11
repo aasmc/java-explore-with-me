@@ -1,6 +1,11 @@
 package ru.practicum.ewm.service.error;
 
-public class ErrorConstants {
+public final class ErrorConstants {
+
+    private ErrorConstants() {
+
+    }
+
     public static final String NOT_FOUND_REASON = "The required object was not found.";
     public static final String BAD_REQUEST_REASON = "Incorrectly made request.";
     public static final String UNKNOWN_REASON = "Unknown reason";

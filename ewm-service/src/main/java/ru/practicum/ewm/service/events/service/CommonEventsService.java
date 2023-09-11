@@ -1,5 +1,7 @@
 package ru.practicum.ewm.service.events.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.dto.EventFullDto;
 import ru.practicum.ewm.service.events.mapper.EventMapper;
@@ -9,33 +11,30 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseEventService {
+@RequiredArgsConstructor
+@Service
+public class CommonEventsService {
 
     private final StatisticsService statisticsService;
     protected final EventMapper mapper;
 
-    protected BaseEventService(StatisticsService statisticsService, EventMapper mapper) {
-        this.statisticsService = statisticsService;
-        this.mapper = mapper;
-    }
-
-    protected Map<Long, Long> getEventViews(List<Long> eventsIds, LocalDateTime start, LocalDateTime end) {
+    public Map<Long, Long> getEventViews(List<Long> eventsIds, LocalDateTime start, LocalDateTime end) {
         return statisticsService.getEventsViews(eventsIds, start, end, true);
     }
 
-    protected Map<Long, Long> getConfirmedCount(List<Long> eventsIds) {
+    public Map<Long, Long> getConfirmedCount(List<Long> eventsIds) {
         return statisticsService.getConfirmedCount(eventsIds);
     }
 
-    protected Long getConfirmedCountOfEvent(Long eventId) {
+    public Long getConfirmedCountOfEvent(Long eventId) {
         return statisticsService.getConfirmedCountForEvent(eventId);
     }
 
-    protected Long getSingleEventViews(Long eventId, LocalDateTime start, LocalDateTime end, boolean unique) {
+    public Long getSingleEventViews(Long eventId, LocalDateTime start, LocalDateTime end, boolean unique) {
         return statisticsService.getEventViews(eventId, start, end, unique);
     }
 
-    protected EventFullDto toEventFullDto(Event event) {
+    public EventFullDto toEventFullDto(Event event) {
         Long eventId = event.getId();
         LocalDateTime start = LocalDateTime.now();
         if (event.getPublishedOn() != null) {

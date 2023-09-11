@@ -4,16 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.service.error.ErrorConstants;
-import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.dto.*;
 import ru.practicum.ewm.service.events.service.privateservice.PrivateEventRequestsService;
 import ru.practicum.ewm.service.events.service.privateservice.PrivateEventsService;
 import ru.practicum.ewm.service.requests.dto.ParticipationRequestDto;
+import ru.practicum.ewm.service.util.DateHelper;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +21,7 @@ public class PrivateEventsController {
 
     private final PrivateEventsService privateEventService;
     private final PrivateEventRequestsService eventRequestsService;
+    private final DateHelper dateHelper;
 
     @GetMapping("/users/{userId}/events")
     public List<EventShortDto> getEventsOfUser(@PathVariable("userId") Long userId,
@@ -39,7 +38,7 @@ public class PrivateEventsController {
                                     @Valid @RequestBody NewEventDto dto) {
         log.info("Received private POST request to create event for user with ID={}," +
                 "new event: {}", userId, dto);
-        checkNewEventDate(dto.getEventDate());
+        dateHelper.checkNewEventDate(dto.getEventDate());
         return privateEventService.createEvent(userId, dto);
     }
 
@@ -75,13 +74,5 @@ public class PrivateEventsController {
         log.info("Received private PATCH request to update participation requests. EventId={}, UserId={}, Dto: {}",
                 eventId, userId, dto);
         return eventRequestsService.updateParticipationRequests(userId, eventId, dto);
-    }
-
-    private void checkNewEventDate(LocalDateTime eventDate) {
-        LocalDateTime thresholdDate = LocalDateTime.now().plusHours(2);
-        if (eventDate.isBefore(thresholdDate)) {
-            String msg = String.format(ErrorConstants.EVENT_NEW_DATE_WRONG_MSG, eventDate);
-            throw EwmServiceException.incorrectParameters(msg);
-        }
     }
 }

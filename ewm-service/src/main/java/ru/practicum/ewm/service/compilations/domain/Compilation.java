@@ -18,10 +18,13 @@ import java.util.Set;
 public class Compilation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
     @ToString.Exclude
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "compilation")
     private Set<Event> events = new HashSet<>();
+    @Column(name = "pinned")
     private Boolean pinned;
+    @Column(name = "title")
     private String title;
 }

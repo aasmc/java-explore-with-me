@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.events.service.adminservice;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.service.error.EwmServiceException;
@@ -9,8 +10,7 @@ import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.mapper.EventMapper;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
-import ru.practicum.ewm.service.events.service.BaseEventService;
-import ru.practicum.ewm.service.events.service.statisticsservice.StatisticsService;
+import ru.practicum.ewm.service.events.service.CommonEventsService;
 import ru.practicum.ewm.service.events.service.updater.admin.AdminEventUpdater;
 import ru.practicum.ewm.service.util.DateHelper;
 
@@ -23,22 +23,14 @@ import static ru.practicum.ewm.service.error.ErrorConstants.EVENT_NOT_FOUND_MSG;
 
 @Service
 @Transactional
-public class AdminEventsServiceImpl extends BaseEventService implements AdminEventsService {
+@RequiredArgsConstructor
+public class AdminEventsServiceImpl implements AdminEventsService {
 
     private final EventsRepository eventsRepository;
     private final AdminEventUpdater updater;
     private final DateHelper dateHelper;
-
-    public AdminEventsServiceImpl(EventsRepository eventsRepository,
-                                  StatisticsService statisticsService,
-                                  AdminEventUpdater updater,
-                                  EventMapper mapper,
-                                  DateHelper dateHelper) {
-        super(statisticsService, mapper);
-        this.eventsRepository = eventsRepository;
-        this.updater = updater;
-        this.dateHelper = dateHelper;
-    }
+    private final CommonEventsService commonEventsService;
+    private final EventMapper mapper;
 
 
     @Override
@@ -55,8 +47,8 @@ public class AdminEventsServiceImpl extends BaseEventService implements AdminEve
         rangeStart = dateHelper.getStartDateOrComputeIfNull(rangeStart, events);
         rangeEnd = dateHelper.getEndDateOrComputeIfNull(rangeEnd);
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        Map<Long, Long> eventsViews = getEventViews(eventIds, rangeStart, rangeEnd);
-        Map<Long, Long> confirmedEventIdToCount = getConfirmedCount(eventIds);
+        Map<Long, Long> eventsViews = commonEventsService.getEventViews(eventIds, rangeStart, rangeEnd);
+        Map<Long, Long> confirmedEventIdToCount = commonEventsService.getConfirmedCount(eventIds);
         return mapper.mapToFullDtoList(events, eventsViews, confirmedEventIdToCount);
     }
 
@@ -68,7 +60,7 @@ public class AdminEventsServiceImpl extends BaseEventService implements AdminEve
                     return EwmServiceException.notFoundException(msg);
                 });
         event = updater.updateEvent(event, dto);
-        return toEventFullDto(event);
+        return commonEventsService.toEventFullDto(event);
     }
 
 }
