@@ -15,7 +15,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @ToString
-@Table(name = "EVENTS")
+@Table(name = "events")
 @Entity
 @AllArgsConstructor
 @Builder

@@ -3,7 +3,6 @@ package ru.practicum.ewm.service.events.service.publicservice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.service.error.ErrorConstants;
 import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.domain.EventShort;
@@ -22,8 +21,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.service.error.ErrorConstants.*;
 import static ru.practicum.ewm.service.error.ErrorConstants.EVENT_NOT_FOUND_MSG;
+import static ru.practicum.ewm.service.error.ErrorConstants.LOCATION_NOT_FOUND_MSG;
 
 @Service
 @Transactional

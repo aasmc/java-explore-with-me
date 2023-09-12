@@ -2,28 +2,25 @@ package ru.practicum.ewm.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ru.practicum.ewm.service.testutil.EwmContainer;
 
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
 @ActiveProfiles("integtest")
 @Sql(
-        scripts = "classpath:db/clear-db.sql",
+        scripts = "classpath:database/clear-db.sql",
         executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
 )
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class BaseIntegTest {
 
-    @Container
-    static PostgreSQLContainer<EwmContainer> container = EwmContainer.getInstance();
 
     @Autowired
     protected WebTestClient webTestClient;

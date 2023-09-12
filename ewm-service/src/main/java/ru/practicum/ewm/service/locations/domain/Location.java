@@ -11,7 +11,7 @@ import javax.persistence.*;
 @ToString
 @Builder
 @Entity
-@Table(name = "LOCATIONS")
+@Table(name = "locations")
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
