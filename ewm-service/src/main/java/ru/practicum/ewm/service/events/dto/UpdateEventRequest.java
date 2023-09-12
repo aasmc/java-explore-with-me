@@ -10,7 +10,7 @@ public interface UpdateEventRequest {
 
     String getDescription();
 
-    LocationDto getLocation();
+    EventLocationDto getLocation();
 
     LocalDateTime getEventDate();
 

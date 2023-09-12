@@ -1,7 +1,7 @@
 package ru.practicum.ewm.service.testutil;
 
 
-import ru.practicum.ewm.service.events.domain.Location;
+import ru.practicum.ewm.service.events.domain.EventLocation;
 
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -22,7 +22,7 @@ public class TestConstants {
 
     public static final float EVENT_LAT = 22.22f;
     public static final float EVENT_LON = 24.24f;
-    public static final Location EVENT_LOCATION = Location.builder()
+    public static final EventLocation EVENT_LOCATION = EventLocation.builder()
             .lat(EVENT_LAT)
             .lon(EVENT_LON)
             .build();

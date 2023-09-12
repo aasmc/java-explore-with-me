@@ -21,4 +21,27 @@ public interface PublicEventsService {
 
     EventFullDto getEvent(Long eventId);
 
+    List<EventShortDto> getAllEventsInLocationWithId(long locationId,
+                                                     String text,
+                                                     List<Long> categories,
+                                                     Boolean paid,
+                                                     LocalDateTime start,
+                                                     LocalDateTime end,
+                                                     boolean onlyAvailable,
+                                                     EventSort sort,
+                                                     int from,
+                                                     int size);
+
+    List<EventShortDto> getAllEventsInLocationWithCoords(float lat,
+                                                         float lon,
+                                                         String text,
+                                                         List<Long> categories,
+                                                         Boolean paid,
+                                                         LocalDateTime start,
+                                                         LocalDateTime end,
+                                                         boolean onlyAvailable,
+                                                         EventSort sort,
+                                                         int from,
+                                                         int size);
+
 }

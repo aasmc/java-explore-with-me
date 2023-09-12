@@ -6,7 +6,7 @@ import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.mapper.CategoriesMapper;
 import ru.practicum.ewm.service.events.domain.Event;
 import ru.practicum.ewm.service.events.domain.EventShort;
-import ru.practicum.ewm.service.events.domain.Location;
+import ru.practicum.ewm.service.events.domain.EventLocation;
 import ru.practicum.ewm.service.events.dto.*;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.dto.UserShortDto;
@@ -30,7 +30,7 @@ public class EventMapper {
                 .description(dto.getDescription())
                 .eventDate(dto.getEventDate())
                 .user(user)
-                .location(Location.builder()
+                .location(EventLocation.builder()
                         .lat(dto.getLocation().getLat())
                         .lon(dto.getLocation().getLon())
                         .build())
@@ -66,7 +66,7 @@ public class EventMapper {
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
                 .initiator(userMapper.mapToShortDto(event.getUser()))
-                .location(LocationDto.builder()
+                .location(EventLocationDto.builder()
                         .lat(event.getLocation().getLat())
                         .lon(event.getLocation().getLon())
                         .build())

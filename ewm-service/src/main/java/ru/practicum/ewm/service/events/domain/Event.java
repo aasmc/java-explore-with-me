@@ -39,7 +39,7 @@ public class Event {
     @JoinColumn(name = "user_id")
     private User user;
     @Embedded
-    private Location location;
+    private EventLocation location;
     private Boolean paid;
     @Column(name = "participation_limit")
     private int participationLimit;

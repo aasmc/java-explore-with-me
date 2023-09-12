@@ -29,6 +29,63 @@ public class PublicEventsController {
     @Value("${spring.application.name:ewm-service}")
     private String appName;
 
+    /**
+     * Возвращает список событий, которые проводятся в локации с идентификатором [locationId].
+     * Если локации с таким ID не существует - возвращает ошибку 404.
+     * Пользователь может создать событие без привязки к существующим локациям.
+     */
+    @GetMapping("/events/location/{locId}")
+    public List<EventShortDto> getAllEventsInLocationById(@PathVariable("locId") long locationId,
+                                                          @RequestParam(value = "text", required = false) String text,
+                                                          @RequestParam(value = "categories", required = false) List<Long> categories,
+                                                          @RequestParam(value = "paid", required = false) Boolean paid,
+                                                          @RequestParam(value = "rangeStart", required = false) String rangeStart,
+                                                          @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
+                                                          @RequestParam(value = "onlyAvailable", defaultValue = "false") boolean onlyAvailable,
+                                                          @RequestParam(value = "sort", required = false) EventSort sort,
+                                                          @RequestParam(value = "from", defaultValue = "0") int from,
+                                                          @RequestParam(value = "size", defaultValue = "10") int size,
+                                                          HttpServletRequest request) {
+        log.info("Received public request to GET all events in location with id={}", locationId);
+        saveStatistics(request);
+        LocalDateTime start = dateHelper.toDate(rangeStart);
+        LocalDateTime end = dateHelper.toDate(rangeEnd);
+        dateHelper.checkDates(start, end);
+        List<EventShortDto> events = publicEventsService
+                .getAllEventsInLocationWithId(locationId, text, categories, paid, start, end, onlyAvailable, sort, from, size);
+        log.info("Retrieved events for location with ID={}. Events: {}", locationId, events);
+        return events;
+    }
+
+    /**
+     * Возвращает список событий, которые проводятся в локации с координатами [lat] [lon].
+     * Если локации с такими координатами не существует - возвращает пустой список.
+     * Пользователь может создать событие без привязки к существующим локациям.
+     */
+    @GetMapping("/events/location")
+    public List<EventShortDto> getAllEventsInLocationByCoords(@RequestParam("lat") float lat,
+                                                              @RequestParam("lon") float lon,
+                                                              @RequestParam(value = "text", required = false) String text,
+                                                              @RequestParam(value = "categories", required = false) List<Long> categories,
+                                                              @RequestParam(value = "paid", required = false) Boolean paid,
+                                                              @RequestParam(value = "rangeStart", required = false) String rangeStart,
+                                                              @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
+                                                              @RequestParam(value = "onlyAvailable", defaultValue = "false") boolean onlyAvailable,
+                                                              @RequestParam(value = "sort", required = false) EventSort sort,
+                                                              @RequestParam(value = "from", defaultValue = "0") int from,
+                                                              @RequestParam(value = "size", defaultValue = "10") int size,
+                                                              HttpServletRequest request) {
+        log.info("Received public request to GET all events in location with coordinates: lat={}, lon={}", lat, lon);
+        saveStatistics(request);
+        LocalDateTime start = dateHelper.toDate(rangeStart);
+        LocalDateTime end = dateHelper.toDate(rangeEnd);
+        dateHelper.checkDates(start, end);
+        List<EventShortDto> events = publicEventsService
+                .getAllEventsInLocationWithCoords(lat, lon, text, categories, paid, start, end, onlyAvailable, sort, from, size);
+        log.info("Retrieved events for location with lat:{}, lon:{}. Events: {}", lat, lon, events);
+        return events;
+    }
+
     @GetMapping("/events")
     public List<EventShortDto> getAllEvents(@RequestParam(value = "text", required = false) String text,
                                             @RequestParam(value = "categories", required = false) List<Long> categories,

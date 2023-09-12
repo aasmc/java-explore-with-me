@@ -24,7 +24,7 @@ public class EventFullDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATE_FORMAT)
     private LocalDateTime eventDate;
     private UserShortDto initiator;
-    private LocationDto location;
+    private EventLocationDto location;
     private boolean paid;
     private int participantLimit;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATE_FORMAT)

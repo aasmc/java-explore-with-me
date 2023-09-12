@@ -14,6 +14,7 @@ public final class ErrorConstants {
     public static final String FAILED_STATISTICS_REASON = "Error occurred while trying to retrieve statistics from Statistics Client.";
     public static final String CATEGORY_NOT_FOUND_MSG = "Category with id=%d was not found";
     public static final String USER_NOT_FOUND_MSG = "User with id=%d was not found";
+    public static final String LOCATION_NOT_FOUND_MSG = "Location with id=%d was not found";
     public static final String COMPILATION_NOT_FOUND_MSG = "Compilation with id=%d was not found";
     public static final String REQUEST_NOT_FOUND_MSG = "Request with id=%d was not found";
     public static final String EVENT_INITIATOR_SELF_REQUEST_MSG = "User with id=%d is initiator if event with id=%d and cannot request to take part in it.";

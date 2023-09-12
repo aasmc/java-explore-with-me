@@ -18,7 +18,7 @@ public class UpdateEventAdminRequest implements UpdateEventRequest {
     private String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATE_FORMAT)
     private LocalDateTime eventDate;
-    private LocationDto location;
+    private EventLocationDto location;
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;

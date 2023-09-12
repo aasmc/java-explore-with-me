@@ -7,9 +7,12 @@ import ru.practicum.ewm.service.BaseJpaTest;
 import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.repository.CategoriesRepository;
 import ru.practicum.ewm.service.events.domain.Event;
+import ru.practicum.ewm.service.events.domain.EventLocation;
 import ru.practicum.ewm.service.events.domain.EventShort;
 import ru.practicum.ewm.service.events.dto.EventSort;
 import ru.practicum.ewm.service.events.dto.EventState;
+import ru.practicum.ewm.service.locations.domain.Location;
+import ru.practicum.ewm.service.locations.repository.LocationsRepository;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
 
@@ -19,8 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static ru.practicum.ewm.service.testutil.TestConstants.EVENT_DATE;
-import static ru.practicum.ewm.service.testutil.TestConstants.EVENT_PUBLISHED_ON;
+import static ru.practicum.ewm.service.testutil.TestConstants.*;
 import static ru.practicum.ewm.service.testutil.TestData.*;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -29,6 +31,20 @@ class EventsRepositoryTest extends BaseJpaTest {
     private final EventsRepository eventsRepository;
     private final CategoriesRepository categoriesRepository;
     private final UsersRepository usersRepository;
+    private final LocationsRepository locationsRepository;
+
+    @Test
+    void findAllEventsByLocation_whenLocationHasEvents_returnsListOfEvents() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<EventLocation> locations = getEqualNLocations(10, EVENT_LOCATION);
+        List<Event> expected = getTenSavedPublishedEventsWithLocations(categories, users, eventsRepository, locations);
+        Location location = Location.builder().radius(1000.0f).lon(EVENT_LON).lat(EVENT_LAT).name("City").build();
+        location = locationsRepository.save(location);
+
+        List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10);
+        assertThat(result).hasSize(10);
+    }
 
     @Test
     void findAllShortEventsBy_whenDBHasUnpublishedEvents_returnsOnlyPublishedEvents() {

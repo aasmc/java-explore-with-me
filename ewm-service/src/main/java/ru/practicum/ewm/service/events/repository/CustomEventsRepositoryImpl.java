@@ -4,11 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.domain.Category_;
-import ru.practicum.ewm.service.events.domain.Event;
-import ru.practicum.ewm.service.events.domain.EventShort;
-import ru.practicum.ewm.service.events.domain.Event_;
+import ru.practicum.ewm.service.events.domain.*;
 import ru.practicum.ewm.service.events.dto.EventSort;
 import ru.practicum.ewm.service.events.dto.EventState;
+import ru.practicum.ewm.service.locations.domain.Location;
 import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.domain.User_;
 
@@ -50,6 +49,24 @@ public class CustomEventsRepositoryImpl implements CustomEventsRepository {
     }
 
     @Override
+    public List<EventShort> findAllEventsByLocation(Location location,
+                                                    String text,
+                                                    List<Long> categories,
+                                                    Boolean paid,
+                                                    LocalDateTime start,
+                                                    LocalDateTime end,
+                                                    EventSort sort,
+                                                    int from,
+                                                    int size) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<EventShort> query = cb.createQuery(EventShort.class);
+        Root<Event> root = query.from(Event.class);
+        List<Predicate> predicates = createCommonPredicates(cb, root, text, categories, paid, start, end);
+        addLocationPredicate(cb, root, location, predicates);
+        return performQuery(predicates, cb, root, query, sort, from, size);
+    }
+
+    @Override
     public List<EventShort> findAllShortEventsBy(String text,
                                                  List<Long> categories,
                                                  Boolean paid,
@@ -61,13 +78,17 @@ public class CustomEventsRepositoryImpl implements CustomEventsRepository {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<EventShort> query = cb.createQuery(EventShort.class);
         Root<Event> root = query.from(Event.class);
+        List<Predicate> predicates = createCommonPredicates(cb, root, text, categories, paid, start, end);
+        return performQuery(predicates, cb, root, query, sort, from, size);
+    }
 
-        List<Predicate> predicates = new ArrayList<>();
-        addPublishedPredicate(cb, root, predicates);
-        addTextPredicate(cb, root, predicates, text);
-        addCategoriesPredicate(categories, root, predicates);
-        addDatesPredicate(cb, root, predicates, start, end);
-        addPaidPredicate(cb, root, predicates, paid);
+    private List<EventShort> performQuery(List<Predicate> predicates,
+                                          CriteriaBuilder cb,
+                                          Root<Event> root,
+                                          CriteriaQuery<EventShort> query,
+                                          EventSort sort,
+                                          int from,
+                                          int size) {
         addSort(sort, cb, query, root);
 
         query.where(predicates.toArray(new Predicate[0]));
@@ -87,6 +108,36 @@ public class CustomEventsRepositoryImpl implements CustomEventsRepository {
         typedQuery.setFirstResult(from);
         typedQuery.setMaxResults(size);
         return typedQuery.getResultList();
+    }
+
+    private List<Predicate> createCommonPredicates(CriteriaBuilder cb,
+                                                   Root<Event> root,
+                                                   String text,
+                                                   List<Long> categories,
+                                                   Boolean paid,
+                                                   LocalDateTime start,
+                                                   LocalDateTime end) {
+        List<Predicate> predicates = new ArrayList<>();
+        addPublishedPredicate(cb, root, predicates);
+        addTextPredicate(cb, root, predicates, text);
+        addCategoriesPredicate(categories, root, predicates);
+        addDatesPredicate(cb, root, predicates, start, end);
+        addPaidPredicate(cb, root, predicates, paid);
+        return predicates;
+    }
+
+    private void addLocationPredicate(CriteriaBuilder cb,
+                                      Root<Event> root,
+                                      Location location,
+                                      List<Predicate> predicates) {
+        Path<EventLocation> eventLoc = root.get(Event_.location);
+        Predicate distancePredicate = cb.lessThanOrEqualTo(cb.function("distance", Float.class,
+                        eventLoc.get(EventLocation_.lat),
+                        eventLoc.get(EventLocation_.lon),
+                        cb.literal(location.getLat()),
+                        cb.literal(location.getLon())),
+                location.getRadius());
+        predicates.add(distancePredicate);
     }
 
     private void addSort(EventSort sort, CriteriaBuilder cb, CriteriaQuery<EventShort> query, Root<Event> root) {
@@ -141,8 +192,8 @@ public class CustomEventsRepositoryImpl implements CustomEventsRepository {
     }
 
     private void addPublishedPredicate(CriteriaBuilder cb,
-                                              Root<Event> root,
-                                              List<Predicate> predicates) {
+                                       Root<Event> root,
+                                       List<Predicate> predicates) {
         predicates.add(cb.equal(root.get(Event_.state), EventState.PUBLISHED));
     }
 
