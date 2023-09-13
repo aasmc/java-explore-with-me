@@ -17,6 +17,7 @@ import ru.practicum.ewm.service.usermanagement.domain.User;
 import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,16 +35,61 @@ class EventsRepositoryTest extends BaseJpaTest {
     private final LocationsRepository locationsRepository;
 
     @Test
+    void findAllEventsByLocation_whenLocationHasOneEvent_returnsListWithThisEvent() {
+        Event event = getOneSavedPublishedEventAtLocation(eventsRepository, usersRepository, categoriesRepository, TRETYAKOVKA_LOCATION);
+        Location location = Location.builder().radius(RADIUS).lat(LUZHNIKI_LAT).lon(LUZHNIKI_LON).name("Luzhniki").build();
+        location = locationsRepository.save(location);
+        List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(event.getId());
+    }
+
+    @Test
+    void findAllEventsByLocation_whenLocation_hasSomeEvents_returnsCorrectList() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<EventLocation> locationsWithoutEvents = getEqualNLocations(5, NO_EVENT_LOCATION);
+        List<EventLocation> locationsWithEvents = getEqualNLocations(5, EVENT_LOCATION);
+        List<EventLocation> locations = new ArrayList<>(locationsWithEvents);
+        locations.addAll(locationsWithoutEvents);
+        getTenSavedPublishedEventsWithLocations(categories, users, eventsRepository, locations);
+        Location location = Location.builder().radius(100.0f).lon(EVENT_LON).lat(EVENT_LAT).name("City").build();
+        location = locationsRepository.save(location);
+        List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10);
+        assertThat(result).hasSize(5);
+    }
+
+    @Test
+    void findAllEventsByLocation_whenLocation_hasNoEvents_returnsEmptyList() {
+        List<User> users = getTenSavedUsers(usersRepository);
+        List<Category> categories = getTenSavedCategories(categoriesRepository);
+        List<EventLocation> locations = getEqualNLocations(10, EVENT_LOCATION);
+        getTenSavedPublishedEventsWithLocations(categories, users, eventsRepository, locations);
+        Location location = Location.builder().radius(10.0f).lon(NO_EVENT_LON).lat(NO_EVENT_LAT).name("City").build();
+        location = locationsRepository.save(location);
+        List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     void findAllEventsByLocation_whenLocationHasEvents_returnsListOfEvents() {
         List<User> users = getTenSavedUsers(usersRepository);
         List<Category> categories = getTenSavedCategories(categoriesRepository);
         List<EventLocation> locations = getEqualNLocations(10, EVENT_LOCATION);
-        List<Event> expected = getTenSavedPublishedEventsWithLocations(categories, users, eventsRepository, locations);
+        List<Event> expected = getTenSavedPublishedEventsWithLocations(categories, users, eventsRepository, locations)
+                .stream().sorted(Comparator.comparingLong(Event::getId)).collect(Collectors.toList());
         Location location = Location.builder().radius(1000.0f).lon(EVENT_LON).lat(EVENT_LAT).name("City").build();
         location = locationsRepository.save(location);
 
-        List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10);
+        List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10)
+                .stream()
+                .sorted(Comparator.comparingLong(EventShort::getId)).collect(Collectors.toList());
         assertThat(result).hasSize(10);
+        for (int i = 0; i < result.size(); i++) {
+            assertThat(result.get(i).getId()).isEqualTo(expected.get(i).getId());
+            assertThat(result.get(i).getAnnotation()).isEqualTo(expected.get(i).getAnnotation());
+            assertThat(result.get(i).getTitle()).isEqualTo(expected.get(i).getTitle());
+        }
     }
 
     @Test
@@ -294,7 +340,7 @@ class EventsRepositoryTest extends BaseJpaTest {
         LocalDateTime start = EVENT_DATE.plusDays(1);
         LocalDateTime end = EVENT_DATE.plusDays(5);
         List<Event> result = eventsRepository
-                .findAllEventsBy(null, null, null, start, end,0, 10)
+                .findAllEventsBy(null, null, null, start, end, 0, 10)
                 .stream()
                 .sorted(Comparator.comparing(Event::getEventDate))
                 .collect(Collectors.toList());

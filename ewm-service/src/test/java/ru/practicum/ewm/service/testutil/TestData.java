@@ -12,6 +12,10 @@ import ru.practicum.ewm.service.events.dto.EventLocationDto;
 import ru.practicum.ewm.service.events.dto.EventShortDto;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
+import ru.practicum.ewm.service.locations.domain.Location;
+import ru.practicum.ewm.service.locations.dto.CreateLocationRequest;
+import ru.practicum.ewm.service.locations.dto.LocationResponse;
+import ru.practicum.ewm.service.locations.repository.LocationsRepository;
 import ru.practicum.ewm.service.requests.domain.Request;
 import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
 import ru.practicum.ewm.service.requests.repository.RequestsRepository;
@@ -257,6 +261,20 @@ public class TestData {
         return saved;
     }
 
+    public static Event getOneSavedPublishedEventAtLocation(EventsRepository eventsRepository,
+                                                            UsersRepository usersRepository,
+                                                            CategoriesRepository categoriesRepository,
+                                                            EventLocation location) {
+        User user = saveUser(transientUser(USER_EMAIL, USER_NAME), usersRepository);
+        Category category = saveCategory(transientCategory(CATEGORY_NAME), categoriesRepository);
+        Event event = transientEvent(category, user, false);
+        event.setState(PUBLISHED);
+        event.setPublishedOn(EVENT_PUBLISHED_ON);
+        event.setEventDate(EVENT_DATE.plusDays(1));
+        event.setLocation(location);
+        return eventsRepository.save(event);
+    }
+
     public static List<Event> getTenSavedPublishedEvents(List<Category> savedCategories,
                                                          List<User> savedUsers,
                                                          EventsRepository eventsRepository,
@@ -370,15 +388,6 @@ public class TestData {
         return requests;
     }
 
-    public static Event getOneSavedEvent(EventsRepository eventsRepository,
-                                         UsersRepository usersRepository,
-                                         CategoriesRepository categoriesRepository) {
-        User user = saveUser(transientUser(USER_EMAIL, USER_NAME), usersRepository);
-        Category category = saveCategory(transientCategory(CATEGORY_NAME), categoriesRepository);
-        Event event = transientEvent(category, user, false);
-        event.setPublishedOn(EVENT_PUBLISHED_ON);
-        return eventsRepository.save(event);
-    }
 
     public static Request mockRequest(long id, ParticipationStatus status, int eventParticipationLimit) {
         return Request.builder()
@@ -401,4 +410,32 @@ public class TestData {
     public static User mockEmptyUser() {
         return User.builder().build();
     }
+
+    public static List<Location> createTenSavedLocations(LocationsRepository locationsRepository) {
+        List<Location> locations = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Location location = Location.builder()
+                    .name("Location " + i)
+                    .lat(100f + i + 1)
+                    .lon(100f + i + 1)
+                    .radius(100f + i + 1)
+                    .build();
+            locations.add(locationsRepository.save(location));
+        }
+        return locations;
+    }
+
+    public static CreateLocationRequest createLocationRequest(float rad, float lat, float lon, String name) {
+        return CreateLocationRequest.builder()
+                .radius(rad)
+                .lat(lat)
+                .lon(lon)
+                .name(name)
+                .build();
+    }
+
+    public static CreateLocationRequest createLuzhnikiLoc() {
+        return createLocationRequest(RADIUS, LUZHNIKI_LAT, LUZHNIKI_LON, "Luzhniki");
+    }
+
 }
