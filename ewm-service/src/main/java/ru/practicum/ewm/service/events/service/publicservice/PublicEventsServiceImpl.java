@@ -86,6 +86,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
     @Override
     public List<EventShortDto> getAllEventsInLocationWithCoords(float lat,
                                                                 float lon,
+                                                                float radius,
                                                                 String text,
                                                                 List<Long> categories,
                                                                 Boolean paid,
@@ -95,12 +96,8 @@ public class PublicEventsServiceImpl implements PublicEventsService {
                                                                 EventSort sort,
                                                                 int from,
                                                                 int size) {
-        Optional<Location> locationOpt = locationsRepository.findByLatAndLon(lat, lon);
-        if (locationOpt.isEmpty()) {
-            return Collections.emptyList();
-        }
         List<EventShort> events = eventsRepository
-                .findAllEventsByLocation(locationOpt.get(), text, categories, paid, start, end, sort, from, size);
+                .findAllEventsByCoordinates(lat, lon, radius, text, categories, paid, start, end, sort, from, size);
         return createResult(events, start, end, onlyAvailable, sort);
     }
 

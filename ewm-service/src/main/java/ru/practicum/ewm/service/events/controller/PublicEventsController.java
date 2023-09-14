@@ -58,13 +58,14 @@ public class PublicEventsController {
     }
 
     /**
-     * Возвращает список событий, которые проводятся в локации с координатами [lat] [lon].
-     * Если локации с такими координатами не существует - возвращает пустой список.
-     * Пользователь может создать событие без привязки к существующим локациям.
+     * Возвращает список событий, которые проводятся в радиусе [radius] от локации с координатами [lat] [lon].
+     * Этот метод не требует, чтобы локация была заранее определена, так как поиск осуществляется
+     * по произвольным параметрам от пользователя.
      */
     @GetMapping("/events/location")
     public List<EventShortDto> getAllEventsInLocationByCoords(@RequestParam("lat") float lat,
                                                               @RequestParam("lon") float lon,
+                                                              @RequestParam("radius") float radius,
                                                               @RequestParam(value = "text", required = false) String text,
                                                               @RequestParam(value = "categories", required = false) List<Long> categories,
                                                               @RequestParam(value = "paid", required = false) Boolean paid,
@@ -81,7 +82,7 @@ public class PublicEventsController {
         LocalDateTime end = dateHelper.toDate(rangeEnd);
         dateHelper.checkDates(start, end);
         List<EventShortDto> events = publicEventsService
-                .getAllEventsInLocationWithCoords(lat, lon, text, categories, paid, start, end, onlyAvailable, sort, from, size);
+                .getAllEventsInLocationWithCoords(lat, lon, radius, text, categories, paid, start, end, onlyAvailable, sort, from, size);
         log.info("Retrieved events for location with lat:{}, lon:{}. Events: {}", lat, lon, events);
         return events;
     }

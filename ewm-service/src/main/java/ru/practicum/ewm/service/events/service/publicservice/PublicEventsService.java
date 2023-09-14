@@ -34,6 +34,7 @@ public interface PublicEventsService {
 
     List<EventShortDto> getAllEventsInLocationWithCoords(float lat,
                                                          float lon,
+                                                         float radius,
                                                          String text,
                                                          List<Long> categories,
                                                          Boolean paid,

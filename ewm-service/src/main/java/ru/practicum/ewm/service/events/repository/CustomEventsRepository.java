@@ -21,6 +21,18 @@ public interface CustomEventsRepository {
                                              int from,
                                              int size);
 
+    List<EventShort> findAllEventsByCoordinates(float lat,
+                                                float lon,
+                                                float radius,
+                                                String text,
+                                                List<Long> categories,
+                                                Boolean paid,
+                                                LocalDateTime start,
+                                                LocalDateTime end,
+                                                EventSort sort,
+                                                int from,
+                                                int size);
+
     List<Event> findAllEventsBy(List<Long> users,
                                 List<EventState> states,
                                 List<Long> categories,

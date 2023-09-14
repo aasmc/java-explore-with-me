@@ -62,7 +62,27 @@ public class CustomEventsRepositoryImpl implements CustomEventsRepository {
         CriteriaQuery<EventShort> query = cb.createQuery(EventShort.class);
         Root<Event> root = query.from(Event.class);
         List<Predicate> predicates = createCommonPredicates(cb, root, text, categories, paid, start, end);
-        addLocationPredicate(cb, root, location, predicates);
+        addLocationPredicate(cb, root, location.getLat(), location.getLon(), location.getRadius(), predicates);
+        return performQuery(predicates, cb, root, query, sort, from, size);
+    }
+
+    @Override
+    public List<EventShort> findAllEventsByCoordinates(float lat,
+                                                       float lon,
+                                                       float radius,
+                                                       String text,
+                                                       List<Long> categories,
+                                                       Boolean paid,
+                                                       LocalDateTime start,
+                                                       LocalDateTime end,
+                                                       EventSort sort,
+                                                       int from,
+                                                       int size) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<EventShort> query = cb.createQuery(EventShort.class);
+        Root<Event> root = query.from(Event.class);
+        List<Predicate> predicates = createCommonPredicates(cb, root, text, categories, paid, start, end);
+        addLocationPredicate(cb, root, lat, lon, radius, predicates);
         return performQuery(predicates, cb, root, query, sort, from, size);
     }
 
@@ -128,15 +148,17 @@ public class CustomEventsRepositoryImpl implements CustomEventsRepository {
 
     private void addLocationPredicate(CriteriaBuilder cb,
                                       Root<Event> root,
-                                      Location location,
+                                      float lat,
+                                      float lon,
+                                      float radius,
                                       List<Predicate> predicates) {
         Path<EventLocation> eventLoc = root.get(Event_.location);
         Predicate distancePredicate = cb.lessThanOrEqualTo(cb.function("distance", Float.class,
                         eventLoc.get(EventLocation_.lat),
                         eventLoc.get(EventLocation_.lon),
-                        cb.literal(location.getLat()),
-                        cb.literal(location.getLon())),
-                location.getRadius());
+                        cb.literal(lat),
+                        cb.literal(lon)),
+                radius);
         predicates.add(distancePredicate);
     }
 
