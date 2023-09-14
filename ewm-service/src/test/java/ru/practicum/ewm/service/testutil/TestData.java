@@ -14,7 +14,6 @@ import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
 import ru.practicum.ewm.service.locations.domain.Location;
 import ru.practicum.ewm.service.locations.dto.CreateLocationRequest;
-import ru.practicum.ewm.service.locations.dto.LocationResponse;
 import ru.practicum.ewm.service.locations.repository.LocationsRepository;
 import ru.practicum.ewm.service.requests.domain.Request;
 import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
