@@ -62,7 +62,12 @@ public class CustomEventsRepositoryImpl implements CustomEventsRepository {
         CriteriaQuery<EventShort> query = cb.createQuery(EventShort.class);
         Root<Event> root = query.from(Event.class);
         List<Predicate> predicates = createCommonPredicates(cb, root, text, categories, paid, start, end);
-        addLocationPredicate(cb, root, location.getLat(), location.getLon(), location.getRadius(), predicates);
+        addLocationPredicate(cb,
+                root,
+                location.getCoordinates().getLat(),
+                location.getCoordinates().getLon(),
+                location.getCoordinates().getRadius(),
+                predicates);
         return performQuery(predicates, cb, root, query, sort, from, size);
     }
 

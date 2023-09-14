@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service.locations.mapper;
 
 import org.springframework.stereotype.Component;
+import ru.practicum.ewm.service.locations.domain.Coordinates;
 import ru.practicum.ewm.service.locations.domain.Location;
 import ru.practicum.ewm.service.locations.dto.CreateLocationRequest;
 import ru.practicum.ewm.service.locations.dto.LocationResponse;
@@ -13,10 +14,11 @@ public class LocationsMapper {
 
     public Location mapToEntity(CreateLocationRequest dto) {
         return Location.builder()
-                .radius(dto.getRadius())
+                .coordinates(Coordinates.builder()
+                        .lat(dto.getLat())
+                        .lon(dto.getLon())
+                        .radius(dto.getRadius()).build())
                 .name(dto.getName())
-                .lat(dto.getLat())
-                .lon(dto.getLon())
                 .build();
     }
 
@@ -24,8 +26,8 @@ public class LocationsMapper {
         return LocationResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
-                .lat(entity.getLat())
-                .lon(entity.getLon())
+                .lat(entity.getCoordinates().getLat())
+                .lon(entity.getCoordinates().getLon())
                 .build();
     }
 

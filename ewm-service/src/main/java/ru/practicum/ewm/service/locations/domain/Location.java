@@ -17,12 +17,8 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "lat", nullable = false)
-    private float lat;
-    @Column(name = "lon", nullable = false)
-    private float lon;
-    @Column(name = "radius", nullable = false)
-    private float radius;
+    @Embedded
+    private Coordinates coordinates;
     @Column(name = "name", nullable = false)
     private String name;
 }

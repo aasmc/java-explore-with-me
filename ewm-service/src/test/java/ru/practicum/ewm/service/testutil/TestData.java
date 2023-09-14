@@ -12,6 +12,7 @@ import ru.practicum.ewm.service.events.dto.EventLocationDto;
 import ru.practicum.ewm.service.events.dto.EventShortDto;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
+import ru.practicum.ewm.service.locations.domain.Coordinates;
 import ru.practicum.ewm.service.locations.domain.Location;
 import ru.practicum.ewm.service.locations.dto.CreateLocationRequest;
 import ru.practicum.ewm.service.locations.repository.LocationsRepository;
@@ -415,9 +416,11 @@ public class TestData {
         for (int i = 0; i < 10; i++) {
             Location location = Location.builder()
                     .name("Location " + i)
-                    .lat(100f + i + 1)
-                    .lon(100f + i + 1)
-                    .radius(100f + i + 1)
+                    .coordinates(Coordinates.builder()
+                            .lat(100f + i + 1)
+                            .lon(100f + i + 1)
+                            .radius(100f + i + 1)
+                            .build())
                     .build();
             locations.add(locationsRepository.save(location));
         }

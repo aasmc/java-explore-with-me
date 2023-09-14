@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import ru.practicum.ewm.service.BaseIntegTest;
+import ru.practicum.ewm.service.locations.domain.Coordinates;
 import ru.practicum.ewm.service.locations.domain.Location;
 import ru.practicum.ewm.service.locations.dto.CreateLocationRequest;
 import ru.practicum.ewm.service.locations.dto.LocationResponse;
@@ -23,7 +24,7 @@ class LocationsAdminServiceImplTest extends BaseIntegTest {
 
     @Test
     void createLocation_whenLatLonInDb_throws() {
-        Location location = Location.builder().radius(RADIUS).lat(LUZHNIKI_LAT).lon(LUZHNIKI_LON).name("Luzhniki").build();
+        Location location = Location.builder().coordinates(Coordinates.builder().radius(RADIUS).lat(LUZHNIKI_LAT).lon(LUZHNIKI_LON).build()).name("Luzhniki").build();
         locationsRepository.save(location);
         CreateLocationRequest luzhnikiLoc = createLuzhnikiLoc();
         assertThrows(DataIntegrityViolationException.class,
