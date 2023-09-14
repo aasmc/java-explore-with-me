@@ -11,6 +11,7 @@ import ru.practicum.ewm.service.events.domain.EventLocation;
 import ru.practicum.ewm.service.events.domain.EventShort;
 import ru.practicum.ewm.service.events.dto.EventSort;
 import ru.practicum.ewm.service.events.dto.EventState;
+import ru.practicum.ewm.service.locations.domain.Coordinates;
 import ru.practicum.ewm.service.locations.domain.Location;
 import ru.practicum.ewm.service.locations.repository.LocationsRepository;
 import ru.practicum.ewm.service.usermanagement.domain.User;
@@ -37,7 +38,8 @@ class EventsRepositoryTest extends BaseJpaTest {
     @Test
     void findAllEventsByLocation_whenLocationHasOneEvent_returnsListWithThisEvent() {
         Event event = getOneSavedPublishedEventAtLocation(eventsRepository, usersRepository, categoriesRepository, TRETYAKOVKA_LOCATION);
-        Location location = Location.builder().radius(RADIUS).lat(LUZHNIKI_LAT).lon(LUZHNIKI_LON).name("Luzhniki").build();
+        Location location = Location.builder().coordinates(Coordinates.builder().radius(RADIUS).lat(LUZHNIKI_LAT).lon(LUZHNIKI_LON).build())
+                .name("Luzhniki").build();
         location = locationsRepository.save(location);
         List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10);
         assertThat(result).hasSize(1);
@@ -53,7 +55,8 @@ class EventsRepositoryTest extends BaseJpaTest {
         List<EventLocation> locations = new ArrayList<>(locationsWithEvents);
         locations.addAll(locationsWithoutEvents);
         getTenSavedPublishedEventsWithLocations(categories, users, eventsRepository, locations);
-        Location location = Location.builder().radius(100.0f).lon(EVENT_LON).lat(EVENT_LAT).name("City").build();
+        Location location = Location.builder().coordinates(Coordinates.builder().radius(100.0f).lon(EVENT_LON).lat(EVENT_LAT).build())
+                .name("City").build();
         location = locationsRepository.save(location);
         List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10);
         assertThat(result).hasSize(5);
@@ -65,7 +68,8 @@ class EventsRepositoryTest extends BaseJpaTest {
         List<Category> categories = getTenSavedCategories(categoriesRepository);
         List<EventLocation> locations = getEqualNLocations(10, EVENT_LOCATION);
         getTenSavedPublishedEventsWithLocations(categories, users, eventsRepository, locations);
-        Location location = Location.builder().radius(10.0f).lon(NO_EVENT_LON).lat(NO_EVENT_LAT).name("City").build();
+        Location location = Location.builder().coordinates(Coordinates.builder().radius(10.0f).lon(NO_EVENT_LON).lat(NO_EVENT_LAT).build())
+                .name("City").build();
         location = locationsRepository.save(location);
         List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10);
         assertThat(result).isEmpty();
@@ -78,7 +82,8 @@ class EventsRepositoryTest extends BaseJpaTest {
         List<EventLocation> locations = getEqualNLocations(10, EVENT_LOCATION);
         List<Event> expected = getTenSavedPublishedEventsWithLocations(categories, users, eventsRepository, locations)
                 .stream().sorted(Comparator.comparingLong(Event::getId)).collect(Collectors.toList());
-        Location location = Location.builder().radius(1000.0f).lon(EVENT_LON).lat(EVENT_LAT).name("City").build();
+        Location location = Location.builder().coordinates(Coordinates.builder().radius(1000.0f).lon(EVENT_LON).lat(EVENT_LAT).build())
+                .name("City").build();
         location = locationsRepository.save(location);
 
         List<EventShort> result = eventsRepository.findAllEventsByLocation(location, "event", null, null, null, null, null, 0, 10)
