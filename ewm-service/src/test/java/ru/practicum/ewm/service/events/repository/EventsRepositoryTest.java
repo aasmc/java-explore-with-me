@@ -172,7 +172,6 @@ class EventsRepositoryTest extends BaseJpaTest {
                 .limit(5)
                 .collect(Collectors.toList());
 
-
         List<EventShort> result = eventsRepository.findAllShortEventsBy("event",
                 categoryIds,
                 false,
