@@ -4,8 +4,8 @@ import ru.practicum.ewm.service.categories.domain.Category;
 import ru.practicum.ewm.service.categories.repository.CategoriesRepository;
 import ru.practicum.ewm.service.error.EwmServiceException;
 import ru.practicum.ewm.service.events.domain.Event;
-import ru.practicum.ewm.service.events.domain.Location;
-import ru.practicum.ewm.service.events.dto.LocationDto;
+import ru.practicum.ewm.service.events.domain.EventLocation;
+import ru.practicum.ewm.service.events.dto.EventLocationDto;
 import ru.practicum.ewm.service.events.dto.UpdateEventRequest;
 
 import java.time.LocalDateTime;
@@ -60,9 +60,9 @@ public abstract class BaseUpdater<T extends UpdateEventRequest> {
         }
     }
 
-    private void updateLocation(Event event, LocationDto location) {
+    private void updateLocation(Event event, EventLocationDto location) {
         if (location != null) {
-            event.setLocation(Location.builder()
+            event.setLocation(EventLocation.builder()
                     .lat(location.getLat())
                     .lon(location.getLon())
                     .build());

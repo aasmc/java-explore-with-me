@@ -9,7 +9,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "CATEGORIES")
+@Table(name = "categories")
 @ToString
 @Builder
 @AllArgsConstructor

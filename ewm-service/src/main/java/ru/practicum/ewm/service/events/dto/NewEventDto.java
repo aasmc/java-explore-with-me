@@ -23,7 +23,7 @@ public class NewEventDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateUtil.DATE_FORMAT)
     private LocalDateTime eventDate;
     @NotNull
-    private LocationDto location;
+    private EventLocationDto location;
     private boolean paid;
     /**
      * Value 0 means there's no limit.

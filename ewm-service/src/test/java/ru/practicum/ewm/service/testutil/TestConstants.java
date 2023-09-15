@@ -1,7 +1,7 @@
 package ru.practicum.ewm.service.testutil;
 
 
-import ru.practicum.ewm.service.events.domain.Location;
+import ru.practicum.ewm.service.events.domain.EventLocation;
 
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -22,9 +22,27 @@ public class TestConstants {
 
     public static final float EVENT_LAT = 22.22f;
     public static final float EVENT_LON = 24.24f;
-    public static final Location EVENT_LOCATION = Location.builder()
+    public static final float NO_EVENT_LAT = 1022.22f;
+    public static final float NO_EVENT_LON = 1024.24f;
+
+    public static final float LUZHNIKI_LAT = 55.717721f;
+    public static final float LUZHNIKI_LON = 37.554306f;
+    public static final float TRETYAKOKVA_LAT = 55.741215f;
+    public static final float TRETYAKOKVA_LON = 37.620195f;
+    public static final float RADIUS = 7000.0f; // 7 kilometers
+
+    public static final EventLocation TRETYAKOVKA_LOCATION = EventLocation.builder()
+            .lat(TRETYAKOKVA_LAT)
+            .lon(TRETYAKOKVA_LON)
+            .build();
+    public static final EventLocation EVENT_LOCATION = EventLocation.builder()
             .lat(EVENT_LAT)
             .lon(EVENT_LON)
+            .build();
+
+    public static final EventLocation NO_EVENT_LOCATION = EventLocation.builder()
+            .lat(NO_EVENT_LAT)
+            .lon(NO_EVENT_LON)
             .build();
 
     public static final int EVENT_PARTICIPATION_LIMIT = 10;

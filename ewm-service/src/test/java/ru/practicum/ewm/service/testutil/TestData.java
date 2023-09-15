@@ -5,13 +5,17 @@ import ru.practicum.ewm.service.categories.dto.CategoryDto;
 import ru.practicum.ewm.service.categories.dto.NewCategoryDto;
 import ru.practicum.ewm.service.categories.repository.CategoriesRepository;
 import ru.practicum.ewm.service.events.domain.Event;
+import ru.practicum.ewm.service.events.domain.EventLocation;
 import ru.practicum.ewm.service.events.domain.EventShort;
-import ru.practicum.ewm.service.events.domain.Location;
 import ru.practicum.ewm.service.events.dto.EventFullDto;
+import ru.practicum.ewm.service.events.dto.EventLocationDto;
 import ru.practicum.ewm.service.events.dto.EventShortDto;
-import ru.practicum.ewm.service.events.dto.LocationDto;
 import ru.practicum.ewm.service.events.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
+import ru.practicum.ewm.service.locations.domain.Coordinates;
+import ru.practicum.ewm.service.locations.domain.Location;
+import ru.practicum.ewm.service.locations.dto.CreateLocationRequest;
+import ru.practicum.ewm.service.locations.repository.LocationsRepository;
 import ru.practicum.ewm.service.requests.domain.Request;
 import ru.practicum.ewm.service.requests.dto.ParticipationStatus;
 import ru.practicum.ewm.service.requests.repository.RequestsRepository;
@@ -22,6 +26,7 @@ import ru.practicum.ewm.service.usermanagement.repository.UsersRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +84,7 @@ public class TestData {
                 .category(1L)
                 .description("New Description")
                 .eventDate(EVENT_DATE.plusDays(1))
-                .location(LocationDto.builder().lat(4.4f).lon(5.5f).build())
+                .location(EventLocationDto.builder().lat(4.4f).lon(5.5f).build())
                 .paid(false)
                 .participantLimit(10)
                 .requestModeration(false)
@@ -100,7 +105,7 @@ public class TestData {
                 .description(request.getDescription())
                 .eventDate(request.getEventDate())
                 .user(user)
-                .location(Location.builder()
+                .location(EventLocation.builder()
                         .lat(request.getLocation().getLat())
                         .lon(request.getLocation().getLon())
                         .build())
@@ -129,6 +134,12 @@ public class TestData {
                 .state(PENDING)
                 .title(EVENT_TITLE)
                 .build();
+    }
+
+    public static Event transientEventWithLocation(Category category, User user, boolean paid, EventLocation location) {
+        Event event = transientEvent(category, user, paid);
+        event.setLocation(location);
+        return event;
     }
 
     public static Event transientEvent(Long catId,
@@ -173,7 +184,7 @@ public class TestData {
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
                 .initiator(UserShortDto.builder().id(event.getUser().getId()).name(event.getUser().getName()).build())
-                .location(LocationDto.builder()
+                .location(EventLocationDto.builder()
                         .lat(event.getLocation().getLat())
                         .lon(event.getLocation().getLon())
                         .build())
@@ -232,10 +243,42 @@ public class TestData {
         return saved;
     }
 
+    public static List<Event> getTenSavedPublishedEventsWithLocations(List<Category> savedCategories,
+                                                                      List<User> savedUsers,
+                                                                      EventsRepository eventsRepository,
+                                                                      List<EventLocation> locations) {
+        List<Event> saved = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Category category = savedCategories.get(i);
+            User user = savedUsers.get(i);
+            EventLocation location = locations.get(i);
+            Event event = transientEventWithLocation(category, user, false, location);
+            event.setState(PUBLISHED);
+            event.setEventDate(EVENT_DATE.plusDays(i + 1));
+            event.setPublishedOn(EVENT_PUBLISHED_ON);
+            saved.add(eventsRepository.save(event));
+        }
+        return saved;
+    }
+
+    public static Event getOneSavedPublishedEventAtLocation(EventsRepository eventsRepository,
+                                                            UsersRepository usersRepository,
+                                                            CategoriesRepository categoriesRepository,
+                                                            EventLocation location) {
+        User user = saveUser(transientUser(USER_EMAIL, USER_NAME), usersRepository);
+        Category category = saveCategory(transientCategory(CATEGORY_NAME), categoriesRepository);
+        Event event = transientEvent(category, user, false);
+        event.setState(PUBLISHED);
+        event.setPublishedOn(EVENT_PUBLISHED_ON);
+        event.setEventDate(EVENT_DATE.plusDays(1));
+        event.setLocation(location);
+        return eventsRepository.save(event);
+    }
+
     public static List<Event> getTenSavedPublishedEvents(List<Category> savedCategories,
-                                                                               List<User> savedUsers,
-                                                                               EventsRepository eventsRepository,
-                                                                               int participationLimit) {
+                                                         List<User> savedUsers,
+                                                         EventsRepository eventsRepository,
+                                                         int participationLimit) {
         List<Event> saved = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Category category = savedCategories.get(i);
@@ -312,6 +355,10 @@ public class TestData {
                 .collect(Collectors.toList());
     }
 
+    public static List<EventLocation> getEqualNLocations(int n, EventLocation location) {
+        return Collections.nCopies(n, location);
+    }
+
     public static List<User> getTenSavedUsers(UsersRepository usersRepository) {
         List<User> tenTransientUsers = getTenTransientUsers();
         return tenTransientUsers.stream()
@@ -341,15 +388,6 @@ public class TestData {
         return requests;
     }
 
-    public static Event getOneSavedEvent(EventsRepository eventsRepository,
-                                         UsersRepository usersRepository,
-                                         CategoriesRepository categoriesRepository) {
-        User user = saveUser(transientUser(USER_EMAIL, USER_NAME), usersRepository);
-        Category category = saveCategory(transientCategory(CATEGORY_NAME), categoriesRepository);
-        Event event = transientEvent(category, user, false);
-        event.setPublishedOn(EVENT_PUBLISHED_ON);
-        return eventsRepository.save(event);
-    }
 
     public static Request mockRequest(long id, ParticipationStatus status, int eventParticipationLimit) {
         return Request.builder()
@@ -372,4 +410,34 @@ public class TestData {
     public static User mockEmptyUser() {
         return User.builder().build();
     }
+
+    public static List<Location> createTenSavedLocations(LocationsRepository locationsRepository) {
+        List<Location> locations = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Location location = Location.builder()
+                    .name("Location " + i)
+                    .coordinates(Coordinates.builder()
+                            .lat(100f + i + 1)
+                            .lon(100f + i + 1)
+                            .radius(100f + i + 1)
+                            .build())
+                    .build();
+            locations.add(locationsRepository.save(location));
+        }
+        return locations;
+    }
+
+    public static CreateLocationRequest createLocationRequest(float rad, float lat, float lon, String name) {
+        return CreateLocationRequest.builder()
+                .radius(rad)
+                .lat(lat)
+                .lon(lon)
+                .name(name)
+                .build();
+    }
+
+    public static CreateLocationRequest createLuzhnikiLoc() {
+        return createLocationRequest(RADIUS, LUZHNIKI_LAT, LUZHNIKI_LON, "Luzhniki");
+    }
+
 }

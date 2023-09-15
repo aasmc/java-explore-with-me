@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class LocationDto {
+public class EventLocationDto {
     private float lat;
     private float lon;
 }
