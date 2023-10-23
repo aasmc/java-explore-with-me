@@ -12,7 +12,7 @@ import javax.persistence.Embeddable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Location {
+public class EventLocation {
     private Float lat;
     private Float lon;
 }

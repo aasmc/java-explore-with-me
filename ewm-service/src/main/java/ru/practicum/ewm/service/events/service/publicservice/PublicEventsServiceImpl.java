@@ -13,6 +13,8 @@ import ru.practicum.ewm.service.events.dto.EventState;
 import ru.practicum.ewm.service.events.mapper.EventMapper;
 import ru.practicum.ewm.service.events.repository.EventsRepository;
 import ru.practicum.ewm.service.events.service.CommonEventsService;
+import ru.practicum.ewm.service.locations.domain.Location;
+import ru.practicum.ewm.service.locations.repository.LocationsRepository;
 import ru.practicum.ewm.service.util.DateHelper;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.practicum.ewm.service.error.ErrorConstants.EVENT_NOT_FOUND_MSG;
+import static ru.practicum.ewm.service.error.ErrorConstants.LOCATION_NOT_FOUND_MSG;
 
 @Service
 @Transactional
@@ -32,6 +35,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
     private final DateHelper dateHelper;
     private final EventMapper mapper;
     private final CommonEventsService commonEventsService;
+    private final LocationsRepository locationsRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -46,6 +50,75 @@ public class PublicEventsServiceImpl implements PublicEventsService {
                                             int size) {
         List<EventShort> events = eventsRepository
                 .findAllShortEventsBy(text, categories, paid, start, end, sort, from, size);
+        return createResult(events, start, end, onlyAvailable, sort);
+    }
+
+
+    @Override
+    public EventFullDto getEvent(Long eventId) {
+        Event event = eventsRepository.findByIdAndState(eventId, EventState.PUBLISHED)
+                .orElseThrow(() -> {
+                    String msg = String.format(EVENT_NOT_FOUND_MSG, eventId);
+                    return EwmServiceException.notFoundException(msg);
+                });
+        return commonEventsService.toEventFullDto(event);
+    }
+
+    @Override
+    public List<EventShortDto> getAllEventsInLocationWithId(long locationId,
+                                                            String text,
+                                                            List<Long> categories,
+                                                            Boolean paid,
+                                                            LocalDateTime start,
+                                                            LocalDateTime end,
+                                                            boolean onlyAvailable,
+                                                            EventSort sort,
+                                                            int from,
+                                                            int size) {
+        Location location = locationsRepository.findById(locationId)
+                .orElseThrow(() -> {
+                    String msg = String.format(LOCATION_NOT_FOUND_MSG, locationId);
+                    return EwmServiceException.notFoundException(msg);
+                });
+        List<EventShort> events = eventsRepository
+                .findAllEventsByLocation(location, text, categories, paid, start, end, sort, from, size);
+        return createResult(events, start, end, onlyAvailable, sort);
+    }
+
+    @Override
+    public List<EventShortDto> getAllEventsInLocationWithCoords(float lat,
+                                                                float lon,
+                                                                float radius,
+                                                                String text,
+                                                                List<Long> categories,
+                                                                Boolean paid,
+                                                                LocalDateTime start,
+                                                                LocalDateTime end,
+                                                                boolean onlyAvailable,
+                                                                EventSort sort,
+                                                                int from,
+                                                                int size) {
+        List<EventShort> events = eventsRepository
+                .findAllEventsByCoordinates(lat, lon, radius, text, categories, paid, start, end, sort, from, size);
+        return createResult(events, start, end, onlyAvailable, sort);
+    }
+
+    private List<EventShort> filterOnlyAvailable(boolean onlyAvailable, List<EventShort> events, Map<Long, Long> confirmedEventIdToCount) {
+        if (onlyAvailable) {
+            events = events.stream().filter(e -> {
+                int participationLimit = e.getParticipationLimit();
+                Long confirmed = confirmedEventIdToCount.getOrDefault(e.getId(), 0L);
+                return confirmed < participationLimit;
+            }).collect(Collectors.toList());
+        }
+        return events;
+    }
+
+    private List<EventShortDto> createResult(List<EventShort> events,
+                                             LocalDateTime start,
+                                             LocalDateTime end,
+                                             boolean onlyAvailable,
+                                             EventSort sort) {
         List<Long> eventIds = events.stream().map(EventShort::getId).collect(Collectors.toList());
         start = dateHelper.getEventShortStartDateOrComputeIfNull(start, events);
         end = dateHelper.getEndDateOrComputeIfNull(end);
@@ -59,26 +132,5 @@ public class PublicEventsServiceImpl implements PublicEventsService {
                     .collect(Collectors.toList());
         }
         return result;
-    }
-
-    @Override
-    public EventFullDto getEvent(Long eventId) {
-        Event event = eventsRepository.findByIdAndState(eventId, EventState.PUBLISHED)
-                .orElseThrow(() -> {
-                    String msg = String.format(EVENT_NOT_FOUND_MSG, eventId);
-                    return EwmServiceException.notFoundException(msg);
-                });
-        return commonEventsService.toEventFullDto(event);
-    }
-
-    private List<EventShort> filterOnlyAvailable(boolean onlyAvailable, List<EventShort> events, Map<Long, Long> confirmedEventIdToCount) {
-        if (onlyAvailable) {
-            events = events.stream().filter(e -> {
-                int participationLimit = e.getParticipationLimit();
-                Long confirmed = confirmedEventIdToCount.getOrDefault(e.getId(), 0L);
-                return confirmed < participationLimit;
-            }).collect(Collectors.toList());
-        }
-        return events;
     }
 }

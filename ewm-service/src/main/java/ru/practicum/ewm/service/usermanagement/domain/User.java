@@ -10,7 +10,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "USERS")
+@Table(name = "users")
 @AllArgsConstructor
 @Builder
 public class User {
