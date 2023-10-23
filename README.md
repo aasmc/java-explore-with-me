@@ -137,15 +137,19 @@ the communication is synchronous.
 Each service uses its own database - PostgreSQL. 
 
 #### stats server schema:
+![Stats server schema](art/stats-db.jpg)
 
 #### ewm service schema:
+![ewm service schema](art/ewm-db.jpg)
 
 ## API description
 API of both services is described using OpenAPI.
 
 #### stats server API:
+https://github.com/aasmc/java-explore-with-me/blob/main/ewm-stats-service-spec.json
 
 #### ewm service API:
+https://github.com/aasmc/java-explore-with-me/blob/main/ewm-main-service-spec.json
 
 ## Testing
 The project has several types of tests:
